@@ -1,0 +1,185 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", sans-serif;
+}
+
+#congregazione {
+  font-size: 12.43px;
+}
+#intestazione-mese-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+#intestazione {
+  font-size: 26.73px;
+}
+
+#mese-programma {
+  font-weight: 400;
+  text-transform: uppercase;
+}
+main {
+  width: 210mm; 
+  height: 297mm; 
+  margin: 0 auto; 
+  font-weight: bold;
+}
+table {
+  margin: 3rem auto;
+  width: 90%;
+  font-size: 13.2px;
+  text-transform: uppercase;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 1rem;
+}
+tr {
+  border-bottom: 0.5rem solid white;
+}
+table img {
+  height: 40px;
+  width: auto;
+}
+tbody tr:nth-child(even) {
+  background-color: #eaf0f6;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #f2faee;
+}
+header {
+  background-color: #f1f1ef;
+  display: flex;
+  align-items: center;
+  height: 10%;
+}
+
+/* CONTROLLI */
+.controlli {
+  width: 210mm;
+  display: flex;
+  margin: 1rem auto;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+  border: 1px solid black;
+  border-radius: 1rem;
+  padding: 1rem;
+  position: sticky;
+  top: -90px;
+  background-color: white;
+}
+button,
+select,
+input {
+  border-radius: 5px;
+  padding: 0.5rem;
+  transition: all ease-in-out 0.01s;
+
+}
+button:active {
+  scale: 0.95;
+  transition: all ease-in-out 0.01s;
+}
+#print-button {
+  background-color: rgb(0, 189, 0);
+  color: white;
+}
+#print-button:hover{
+  background-color: rgb(0, 130, 0);
+}
+#contatore-incarichi {
+  display: flex;
+  list-style: none;
+  flex-direction: row;
+  width: 210mm;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  gap: 1rem;
+  border: 1px solid black;
+}
+@media print {
+  .no-print {
+    display: none;
+  }
+}
+.addetto-microfonista, center-text {
+  text-align: center;
+}
+
+#avviso-caricamento{
+  display: none;
+}
+#file-csv{
+  position: absolute;
+  right: 0;
+  top: 0.8rem;
+  opacity: 0;
+  cursor: pointer;
+}
+#file-csv-label{
+  position: relative;
+  top:0.8rem;
+  overflow: hidden;
+  margin: 0;
+  font-size: 0.9rem;
+  height: 1rem; 
+  background-color: #f1f1ef; 
+  border: 1px solid black;
+  border-radius: 5px; 
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  line-height: 1rem; 
+  padding: 0.5rem;
+  color: #333; 
+}
+
+.no-print.controlli {
+  background-color: #f1f1ef;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.no-print.controlli div {
+  margin-bottom: 10px;
+}
+
+.no-print.controlli label {
+  font-weight: bold;
+}
+
+.no-print.controlli input[type="file"],
+.no-print.controlli input[type="number"],
+.no-print.controlli input[type="text"],
+.no-print.controlli select {
+  margin-right: 10px;
+  padding: 5px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+.no-print.controlli button {
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.no-print.controlli button:hover {
+  background-color: #0056b3;
+}
+
+#contatore-incarichi {
+  margin-top: 10px;
+  font-weight: bold;
+}
