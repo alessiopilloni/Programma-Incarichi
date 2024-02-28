@@ -11,48 +11,39 @@ var elencoUScieri = [];
 var elencoMicrofonisti = [];
 var elencoAudioVideo = [];
 function caricaFileCSV() {
-    var _a, _b;
-    // Type casting with nullish coalescing operator for safer handling
-    var fileButtonInput = (_a = document.getElementById("file-csv")) !== null && _a !== void 0 ? _a : null;
-    if (!fileButtonInput || !((_b = fileButtonInput.files) === null || _b === void 0 ? void 0 : _b.length)) {
-        return; // Error: No file selected
+    var fileInput = document.getElementById("file-csv");
+    var files = fileInput.files;
+    if (!files) {
+        alert("Nessun file CSV selezionato");
+        return;
     }
-    var file = fileButtonInput.files[0];
+    var file = files[0];
     var reader = new FileReader();
-    reader.onload = function (event) {
-        var _a, _b, _c;
-        if (!event.target || !event.target.result) {
-            return; // Handle potential errors during reading
-        }
-        var csvData = event.target.result;
+    reader.onload = function () {
+        var csvData = reader.result;
         var rows = csvData.split("\n");
-        // Skip the first row (headers)
+        // Salta la prima riga (intestazioni)
         rows.shift();
-        var elencoUScieri = [];
-        var elencoMicrofonisti = [];
-        var elencoAudioVideo = [];
-        // Process each row of the CSV file
+        // Per ogni riga del file CSV...
         for (var _i = 0, rows_1 = rows; _i < rows_1.length; _i++) {
             var row = rows_1[_i];
             var columns = row.split(",");
-            // Create a Person object using ES2018 object spreads and optional chaining
-            var person = {
-                nomeUsciere: (_a = columns[0]) !== null && _a !== void 0 ? _a : "",
-                nomeMicrofonista: (_b = columns[1]) !== null && _b !== void 0 ? _b : "",
-                nomeAudioVideo: (_c = columns[2]) !== null && _c !== void 0 ? _c : "",
-            };
-            // Add the person object to the appropriate array(s) based on their roles
-            if (person.nomeUsciere) {
-                elencoUScieri.push(person.nomeUsciere);
+            // Estrai i dati per ogni colonna
+            var nomeUsciere = columns[0];
+            var nomeMicrofonista = columns[1];
+            var nomeAudioVideo = columns[2];
+            // Aggiungi i dati agli array
+            if (nomeUsciere) {
+                elencoUScieri.push(nomeUsciere);
             }
-            if (person.nomeMicrofonista) {
-                elencoMicrofonisti.push(person.nomeMicrofonista);
+            if (nomeMicrofonista) {
+                elencoMicrofonisti.push(nomeMicrofonista);
             }
-            if (person.nomeAudioVideo) {
-                elencoAudioVideo.push(person.nomeAudioVideo);
+            if (nomeAudioVideo) {
+                elencoAudioVideo.push(nomeAudioVideo);
             }
         }
-        popolaIncarichi(); // Call popolaIncarichi with individual arrays
+        popolaIncarichi(); //popola con i dati del CSV
     };
     reader.readAsText(file);
 }
@@ -145,7 +136,7 @@ function populateDateCell() {
     var giorno2 = primoGiornoAdunanza === 0 ? "GIOVEDÌ" : "DOMENICA";
     var giornoAdunanza = giornoPrimaAdunanzaDelMese;
     for (var i = 0; i < celleData.length; i += 2) {
-        celleData[i].textContent = "".concat(giorno1).concat(giornoAdunanza, "/").concat(meseCorrente);
+        celleData[i].textContent = "".concat(giorno1, " ").concat(giornoAdunanza, "/").concat(meseCorrente);
         giornoAdunanza += 7;
     }
     if (giorno1 === "GIOVEDÌ") {
@@ -155,7 +146,7 @@ function populateDateCell() {
         giornoAdunanza = giornoPrimaAdunanzaDelMese + 4;
     }
     for (var i = 1; i < celleData.length; i += 2) {
-        celleData[i].textContent = "".concat(giorno2).concat(giornoAdunanza, "/").concat(meseCorrente);
+        celleData[i].textContent = "".concat(giorno2, " ").concat(giornoAdunanza, "/").concat(meseCorrente);
         giornoAdunanza += 7;
     }
 }

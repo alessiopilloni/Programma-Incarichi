@@ -2,70 +2,58 @@ const elencoUScieri: string[] = [];
 const elencoMicrofonisti: string[] = [];
 const elencoAudioVideo: string[] = [];
 
-// Interface for a Person object
-interface Person {
-  nomeUsciere?: string;
-  nomeMicrofonista?: string;
-  nomeAudioVideo?: string;
-}
+
 
 function caricaFileCSV(): void {
-  // Type casting with nullish coalescing operator for safer handling
-  const fileButtonInput =
-    (document.getElementById("file-csv") as HTMLInputElement) ?? null;
+  const fileInput: HTMLInputElement = document.getElementById("file-csv") as HTMLInputElement;
 
-  if (!fileButtonInput || !fileButtonInput.files?.length) {
-    return; // Error: No file selected
+  const files: FileList | null = fileInput.files;
+
+  if (!files) {
+    alert("Nessun file CSV selezionato")
+        return;
   }
 
-  const file: File = fileButtonInput.files[0];
+  const file: File = files[0];
 
   const reader = new FileReader();
 
-  reader.onload = function (event: ProgressEvent<FileReader>) {
-    if (!event.target || !event.target.result) {
-      return; // Handle potential errors during reading
-    }
+  reader.onload = function(): void {
+    const csvData: string = reader.result as string;
 
-    const csvData = event.target.result as string;
+    const rows: string[] = csvData.split("\n");
 
-    const rows = csvData.split("\n");
-
-    // Skip the first row (headers)
+    // Salta la prima riga (intestazioni)
     rows.shift();
 
-    const elencoUScieri: string[] = [];
-    const elencoMicrofonisti: string[] = [];
-    const elencoAudioVideo: string[] = [];
-
-    // Process each row of the CSV file
+    // Per ogni riga del file CSV...
     for (const row of rows) {
-      const columns = row.split(",");
+      const columns: string[] = row.split(",");
 
-      // Create a Person object using ES2018 object spreads and optional chaining
-      const person: Person = {
-        nomeUsciere: columns[0] ?? "",
-        nomeMicrofonista: columns[1] ?? "",
-        nomeAudioVideo: columns[2] ?? "",
-      };
+      // Estrai i dati per ogni colonna
+      const nomeUsciere: string | undefined = columns[0];
+      const nomeMicrofonista: string | undefined = columns[1];
+      const nomeAudioVideo: string | undefined = columns[2];
 
-      // Add the person object to the appropriate array(s) based on their roles
-      if (person.nomeUsciere) {
-        elencoUScieri.push(person.nomeUsciere);
+      // Aggiungi i dati agli array
+      if (nomeUsciere) {
+        elencoUScieri.push(nomeUsciere);
       }
-      if (person.nomeMicrofonista) {
-        elencoMicrofonisti.push(person.nomeMicrofonista);
+      if (nomeMicrofonista) {
+        elencoMicrofonisti.push(nomeMicrofonista);
       }
-      if (person.nomeAudioVideo) {
-        elencoAudioVideo.push(person.nomeAudioVideo);
+      if (nomeAudioVideo) {
+        elencoAudioVideo.push(nomeAudioVideo);
       }
     }
 
-    popolaIncarichi(); // Call popolaIncarichi with individual arrays
+    popolaIncarichi(); //popola con i dati del CSV
   };
 
   reader.readAsText(file);
 }
+
+
 
 const divMeseProgramma = document.getElementById(
   "mese-programma"
@@ -172,7 +160,7 @@ function populateDateCell() {
   const giorno2 = primoGiornoAdunanza === 0 ? "GIOVEDÌ" : "DOMENICA";
   let giornoAdunanza = giornoPrimaAdunanzaDelMese;
   for (let i = 0; i < celleData.length; i += 2) {
-    celleData[i].textContent = `${giorno1}${giornoAdunanza}/${meseCorrente}`;
+    celleData[i].textContent = `${giorno1} ${giornoAdunanza}/${meseCorrente}`;
     giornoAdunanza += 7;
   }
   if (giorno1 === "GIOVEDÌ") {
@@ -182,7 +170,7 @@ function populateDateCell() {
   }
 
   for (let i = 1; i < celleData.length; i += 2) {
-    celleData[i].textContent = `${giorno2}${giornoAdunanza}/${meseCorrente}`;
+    celleData[i].textContent = `${giorno2} ${giornoAdunanza}/${meseCorrente}`;
     giornoAdunanza += 7;
   }
 }
