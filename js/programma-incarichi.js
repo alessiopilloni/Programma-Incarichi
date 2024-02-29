@@ -10,8 +10,8 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 var elencoUScieri = [];
 var elencoMicrofonisti = [];
 var elencoAudioVideo = [];
+var fileInput = document.getElementById("file-csv");
 function caricaFileCSV() {
-    var fileInput = document.getElementById("file-csv");
     var files = fileInput.files;
     if (!files || files.length === 0) {
         alert("Nessun file CSV selezionato");
@@ -272,6 +272,11 @@ function sonoTuttiDiversi() {
 var contaTentativi = 0;
 // Funzione per popolare una riga della tabella
 function popolateRow(row) {
+    var files = fileInput.files;
+    if (!files || files.length === 0) {
+        alert("Nessun file CSV selezionato");
+        return;
+    }
     var elencoAudioVideoCopy = shuffleArray(__spreadArray([], elencoAudioVideo, true));
     var elencoMicrofonistiCopy = shuffleArray(__spreadArray([], elencoMicrofonisti, true));
     var elencoUScieriCopy = shuffleArray(__spreadArray([], elencoUScieri, true));
@@ -301,6 +306,11 @@ function popolateRow(row) {
 }
 // Funzione per popolare tutti gli incarichi
 function popolaIncarichi() {
+    var files = fileInput.files;
+    if (!files || files.length === 0) {
+        alert("Nessun file CSV selezionato");
+        return;
+    }
     var tentativi = 0;
     var _loop_1 = function () {
         rows.forEach(popolateRow);

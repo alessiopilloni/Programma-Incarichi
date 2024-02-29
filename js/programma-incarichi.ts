@@ -3,9 +3,9 @@ const elencoMicrofonisti: string[] = [];
 const elencoAudioVideo: string[] = [];
 
 
+const fileInput: HTMLInputElement = document.getElementById("file-csv") as HTMLInputElement;
 
 function caricaFileCSV(): void {
-  const fileInput: HTMLInputElement = document.getElementById("file-csv") as HTMLInputElement;
 
   const files: FileList | null = fileInput.files;
 
@@ -315,6 +315,12 @@ function sonoTuttiDiversi(...args: (string | undefined)[]): boolean {
 let contaTentativi = 0;
 // Funzione per popolare una riga della tabella
 function popolateRow(row: HTMLTableRowElement) {
+  const files: FileList | null = fileInput.files;
+
+  if (!files || files.length === 0) {
+    alert("Nessun file CSV selezionato")
+        return;
+  }
   let elencoAudioVideoCopy = shuffleArray([...elencoAudioVideo]);
   let elencoMicrofonistiCopy = shuffleArray([...elencoMicrofonisti]);
   let elencoUScieriCopy = shuffleArray([...elencoUScieri]);
@@ -358,6 +364,12 @@ function popolateRow(row: HTMLTableRowElement) {
 
 // Funzione per popolare tutti gli incarichi
 function popolaIncarichi() {
+  const files: FileList | null = fileInput.files;
+
+  if (!files || files.length === 0) {
+    alert("Nessun file CSV selezionato")
+        return;
+  }
   let tentativi = 0;
 
   while (true) {
