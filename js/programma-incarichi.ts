@@ -9,7 +9,7 @@ function caricaFileCSV(): void {
 
   const files: FileList | null = fileInput.files;
 
-  if (!files) {
+  if (!files || files.length === 0) {
     alert("Nessun file CSV selezionato")
         return;
   }

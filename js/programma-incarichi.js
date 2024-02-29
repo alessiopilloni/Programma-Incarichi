@@ -13,7 +13,7 @@ var elencoAudioVideo = [];
 function caricaFileCSV() {
     var fileInput = document.getElementById("file-csv");
     var files = fileInput.files;
-    if (!files) {
+    if (!files || files.length === 0) {
         alert("Nessun file CSV selezionato");
         return;
     }
