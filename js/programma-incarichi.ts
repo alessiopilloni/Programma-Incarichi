@@ -255,7 +255,7 @@ function shuffleArray(array: string[]) {
 
 // Funzione  che verifica che tutti gli addetti siano impiegati
 function ciSonoElementiInutilizzati() {
-  var rows = tbody.querySelectorAll("tr") as NodeListOf<HTMLTableRowElement>;
+  const rows = tbody.querySelectorAll("tr") as NodeListOf<HTMLTableRowElement>;
   let conteggio: Record<string, number> = {};
 
   rows.forEach(function (row) {
@@ -278,12 +278,12 @@ function ciSonoElementiInutilizzati() {
   });
 
   // Confronto con gli array
-  var elencoCompleto = [
+  let elencoCompleto = [
     ...elencoUScieri,
     ...elencoMicrofonisti,
     ...elencoAudioVideo,
   ];
-  var elementiInutilizzati = elencoCompleto.filter(function (elemento) {
+  let elementiInutilizzati = elencoCompleto.filter(function (elemento) {
     return !(elemento in conteggio);
   });
   const stringaPrimoElementoInutilizzato = elementiInutilizzati[0];
