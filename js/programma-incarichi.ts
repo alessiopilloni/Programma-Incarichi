@@ -17,37 +17,37 @@ function caricaFileCSV(): void {
   const file: File = files[0];
 
   const reader = new FileReader();
-
   reader.onload = function(): void {
-    const csvData: string = reader.result as string;
+    const csvData = String(reader.result || "");
 
-    const rows: string[] = csvData.split("\n");
+    // Supporta CRLF o LF, rimuove righe vuote e spazi esterni
+    const rows: string[] = csvData
+      .split(/\r?\n/)
+      .map(r => r.trim())
+      .filter(r => r.length > 0);
 
-    // Salta la prima riga (intestazioni)
-    rows.shift();
+    // Salta la prima riga (intestazioni) se presente
+    if (rows.length > 0) rows.shift();
 
     // Per ogni riga del file CSV...
     for (const row of rows) {
-      const columns: string[] = row.split(",");
+      // parsing semplice: supporta campi quotati e rimuove virgolette esterne
+      const columns: string[] = row
+        .split(',')
+        .map(c => c.trim().replace(/^"|"$/g, ''));
 
       // Estrai i dati per ogni colonna
-      const nomeUsciere: string | undefined = columns[0];
-      const nomeMicrofonista: string | undefined = columns[1];
-      const nomeAudioVideo: string | undefined = columns[2];
+      const nomeUsciere = columns[0] || undefined;
+      const nomeMicrofonista = columns[1] || undefined;
+      const nomeAudioVideo = columns[2] || undefined;
 
-      // Aggiungi i dati agli array
-      if (nomeUsciere) {
-        elencoUScieri.push(nomeUsciere);
-      }
-      if (nomeMicrofonista) {
-        elencoMicrofonisti.push(nomeMicrofonista);
-      }
-      if (nomeAudioVideo) {
-        elencoAudioVideo.push(nomeAudioVideo);
-      }
+      // Aggiungi i dati agli array (evita stringhe vuote)
+      if (nomeUsciere) elencoUScieri.push(nomeUsciere);
+      if (nomeMicrofonista) elencoMicrofonisti.push(nomeMicrofonista);
+      if (nomeAudioVideo) elencoAudioVideo.push(nomeAudioVideo);
     }
 
-    popolaIncarichi(); //popola con i dati del CSV
+    popolaIncarichi(); // popola con i dati del CSV
   };
 
   reader.readAsText(file);
@@ -110,21 +110,28 @@ const selectRowChanging = document.getElementById(
 function hideRow() {
   const lastOptionData = selectData.lastElementChild as HTMLOptionElement;
   const lastOptionRow = selectRow.lastElementChild as HTMLOptionElement;
-  const lastOptionChanging =
-    selectRowChanging.lastElementChild as HTMLOptionElement;
+  const lastOptionChanging = selectRowChanging.lastElementChild as HTMLOptionElement;
   let rowCount = table.rows.length;
 
   // Nascondi l'ultima riga le option data del div di modifica
   table.rows[rowCount - 1].style.display = "none";
-  lastOptionData.style.display = "none";
-  lastOptionRow.style.display = "none";
-  lastOptionChanging.style.display = "none";
+  
+  // Controlli di sicurezza per evitare errori null
+  if (lastOptionData) {
+    lastOptionData.style.display = "none";
+    lastOptionData.textContent = "DATA";
+  }
+  if (lastOptionRow) {
+    lastOptionRow.style.display = "none";
+    lastOptionRow.textContent = "DATA";
+  }
+  if (lastOptionChanging) {
+    lastOptionChanging.style.display = "none";
+    lastOptionChanging.textContent = "DATA";
+  }
+  
   const ultimaCellaData = celleData[celleData.length - 1];
-
   ultimaCellaData.textContent = "DATA";
-  lastOptionData.textContent = "DATA";
-  lastOptionRow.textContent = "DATA";
-  lastOptionChanging.textContent = "DATA";
 }
 
 function showRow() {
@@ -201,32 +208,14 @@ if (giornoPrimaAdunanzaDelMese + 28 > ultimoGiorno) {
 }
 
 function contaElementi() {
-  let conteggio: Record<string, number> = {};
-
-  rows.forEach(function (row) {
-    const cells = row.querySelectorAll(
-      "td:not(.data)"
-    ) as NodeListOf<HTMLTableCellElement>;
-    cells.forEach(function (cell) {
-      if (cell.textContent) {
-        let elementi = cell.textContent.split(" - ");
-        elementi.forEach(function (elemento) {
-          elemento = elemento.trim();
-          if (elemento in conteggio) {
-            conteggio[elemento]++;
-          } else {
-            conteggio[elemento] = 1;
-          }
-        });
-      }
-    });
-  });
-
+  const conteggio = contaAssegnazioni();
+  
   let contatoreDiv = document.getElementById(
     "contatore-incarichi"
   ) as HTMLDivElement;
   let testoContatoreIncarichi =
     "<strong>Sono stati impiegati i seguenti fratelli:</strong>";
+  
   for (let elemento in conteggio) {
     if (conteggio[elemento] === 1) {
       testoContatoreIncarichi +=
@@ -236,6 +225,7 @@ function contaElementi() {
         elemento + " " + conteggio[elemento] + " volte | ";
     }
   }
+  
   if (testoContatoreIncarichi.length === 70) {
     contatoreDiv.innerHTML =
       "Carica prima il file CSV o completa la tabella manualmente";
@@ -253,41 +243,19 @@ function shuffleArray(array: string[]) {
   return array;
 }
 
-// Funzione  che verifica che tutti gli addetti siano impiegati
-function ciSonoElementiInutilizzati() {
-  const rows = tbody.querySelectorAll("tr") as NodeListOf<HTMLTableRowElement>;
-  let conteggio: Record<string, number> = {};
-
-  rows.forEach(function (row) {
-    const cells = row.querySelectorAll(
-      "td:not(.data)"
-    ) as NodeListOf<HTMLTableCellElement>;
-    cells.forEach(function (cell) {
-      if (cell.textContent) {
-        let elementi = cell.textContent.split(" - ");
-        elementi.forEach(function (elemento) {
-          elemento = elemento.trim();
-          if (elemento in conteggio) {
-            conteggio[elemento]++;
-          } else {
-            conteggio[elemento] = 1;
-          }
-        });
-      }
-    });
-  });
+// Funzione che verifica che tutti gli addetti siano impiegati
+function ciSonoElementiInutilizzati(): string | undefined {
+  const conteggio = contaAssegnazioni();
 
   // Confronto con gli array
-  let elencoCompleto = [
+  const elencoCompleto = [
     ...elencoUScieri,
     ...elencoMicrofonisti,
     ...elencoAudioVideo,
   ];
-  let elementiInutilizzati = elencoCompleto.filter(function (elemento) {
-    return !(elemento in conteggio);
-  });
-  const stringaPrimoElementoInutilizzato = elementiInutilizzati[0];
-  return stringaPrimoElementoInutilizzato; // Se tutto ok, sarà vuoto, o meglio undefined
+  
+  const elementiInutilizzati = elencoCompleto.filter(elemento => !(elemento in conteggio));
+  return elementiInutilizzati[0]; // Se tutto ok, sarà undefined
 }
 
 function sonoTuttiDiversi(...args: (string | undefined)[]): boolean {
@@ -312,104 +280,168 @@ function sonoTuttiDiversi(...args: (string | undefined)[]): boolean {
   return true;
 }
 
-let contaTentativi = 0;
+// Costanti per la generazione (più permissive)
+const MAX_TENTATIVI_RIGA = 200; // aumentato
+const MAX_TENTATIVI_GLOBALI = 1000; // aumentato
+const MAX_OCCORRENZE_PERSONA = 4; // aumentato
+
 // Funzione per popolare una riga della tabella
-function popolateRow(row: HTMLTableRowElement) {
+function popolateRow(row: HTMLTableRowElement): boolean {
   const files: FileList | null = fileInput.files;
 
   if (!files || files.length === 0) {
-    alert("Nessun file CSV selezionato")
-        return;
+    alert("Nessun file CSV selezionato");
+    return false;
   }
-  let elencoAudioVideoCopy = shuffleArray([...elencoAudioVideo]);
-  let elencoMicrofonistiCopy = shuffleArray([...elencoMicrofonisti]);
-  let elencoUScieriCopy = shuffleArray([...elencoUScieri]);
+
+  // Verifica che ci siano abbastanza persone per riempire una riga
+  if (elencoAudioVideo.length < 2 || elencoMicrofonisti.length < 1 || elencoUScieri.length < 2) {
+    console.warn("Non ci sono abbastanza persone negli elenchi per riempire una riga");
+    return false;
+  }
 
   const audioVideoCell = row.querySelector(".addetti-audio-video") as HTMLTableCellElement;
   const microfonistaCell = row.querySelector(".addetto-microfonista") as HTMLTableCellElement;
   const uscieriCell = row.querySelector(".addetti-uscieri") as HTMLTableCellElement;
 
-  let operatoreAudioVideo1 = elencoAudioVideoCopy.pop();
-  let operatoreAudioVideo2 = elencoAudioVideoCopy.pop();
-  let microfonista = elencoMicrofonistiCopy.pop();
-  let usciere1 = elencoUScieriCopy.pop();
-  let usciere2 = elencoUScieriCopy.pop();
+  let tentativi = 0;
+  
+  while (tentativi < MAX_TENTATIVI_RIGA) {
+    const elencoAudioVideoCopy = shuffleArray([...elencoAudioVideo]);
+    const elencoMicrofonistiCopy = shuffleArray([...elencoMicrofonisti]);
+    const elencoUScieriCopy = shuffleArray([...elencoUScieri]);
 
-  // Se ci sono duplicati, rigenera la riga
-  while (
-    !sonoTuttiDiversi(
-      operatoreAudioVideo1,
-      operatoreAudioVideo2,
-      microfonista,
-      usciere1,
-      usciere2
-    )
-  ) {
-    elencoAudioVideoCopy = shuffleArray([...elencoAudioVideo]);
-    elencoMicrofonistiCopy = shuffleArray([...elencoMicrofonisti]);
-    elencoUScieriCopy = shuffleArray([...elencoUScieri]);
+    const operatoreAudioVideo1 = elencoAudioVideoCopy.pop();
+    const operatoreAudioVideo2 = elencoAudioVideoCopy.pop();
+    const microfonista = elencoMicrofonistiCopy.pop();
+    const usciere1 = elencoUScieriCopy.pop();
+    const usciere2 = elencoUScieriCopy.pop();
 
-    operatoreAudioVideo1 = elencoAudioVideoCopy.pop();
-    operatoreAudioVideo2 = elencoAudioVideoCopy.pop();
-    microfonista = elencoMicrofonistiCopy.pop();
-    usciere1 = elencoUScieriCopy.pop();
-    usciere2 = elencoUScieriCopy.pop();
+    // Verifica che tutti i ruoli siano diversi
+    if (sonoTuttiDiversi(operatoreAudioVideo1, operatoreAudioVideo2, microfonista, usciere1, usciere2)) {
+      audioVideoCell.textContent = `${operatoreAudioVideo1} - ${operatoreAudioVideo2}`;
+      microfonistaCell.textContent = `${microfonista}`;
+      uscieriCell.textContent = `${usciere1} - ${usciere2}`;
+      return true;
+    }
+    
+    tentativi++;
   }
 
-  audioVideoCell.textContent = `${operatoreAudioVideo1} - ${operatoreAudioVideo2}`;
-  microfonistaCell.textContent = `${microfonista}`;
-  uscieriCell.textContent = `${usciere1} - ${usciere2}`;
-  // contaElementi();
+  console.warn(`Impossibile trovare una combinazione valida per la riga dopo ${MAX_TENTATIVI_RIGA} tentativi`);
+  return false;
+}
+
+// Funzione helper per contare le assegnazioni
+function contaAssegnazioni(): Record<string, number> {
+  const conteggio: Record<string, number> = {};
+  
+  rows.forEach((row) => {
+    const celleNonData = row.querySelectorAll("td:not(.data)") as NodeListOf<HTMLTableCellElement>;
+    celleNonData.forEach((cella) => {
+      if (cella.textContent) {
+        const contenuto = cella.textContent.trim();
+        if (contenuto && contenuto !== '') {
+          const elementi = contenuto.split(" - ").map(el => el.trim()).filter(el => el.length > 0);
+          elementi.forEach((elemento) => {
+            conteggio[elemento] = (conteggio[elemento] || 0) + 1;
+          });
+        }
+      }
+    });
+  });
+  
+  return conteggio;
+}
+
+// Funzione per verificare se la distribuzione è equilibrata
+function isDistribuzioneEquilibrata(): boolean {
+  const conteggioElementi = contaAssegnazioni();
+
+  // Verifica che nessuno abbia più del massimo consentito
+  const almenoUnElementoSuperioreAMax = Object.values(conteggioElementi).some(count => count > MAX_OCCORRENZE_PERSONA);
+
+  // Verifica se ci sono elementi inutilizzati
+  const elementoInutilizzato = ciSonoElementiInutilizzati();
+
+  // Calcola la percentuale di persone utilizzate
+  const elencoCompleto = [...elencoUScieri, ...elencoMicrofonisti, ...elencoAudioVideo];
+  const personeUtilizzate = Object.keys(conteggioElementi).length;
+  const percentualeUtilizzo = elencoCompleto.length > 0 ? personeUtilizzate / elencoCompleto.length : 0;
+
+  // Considera accettabile se almeno l'80% delle persone è stato utilizzato
+  const utilizzoSufficiente = percentualeUtilizzo >= 0.8 || !elementoInutilizzato;
+
+  return !almenoUnElementoSuperioreAMax && utilizzoSufficiente;
 }
 
 // Funzione per popolare tutti gli incarichi
-function popolaIncarichi() {
+function popolaIncarichi(): void {
   const files: FileList | null = fileInput.files;
 
   if (!files || files.length === 0) {
-    alert("Nessun file CSV selezionato")
-        return;
+    alert("Nessun file CSV selezionato");
+    return;
   }
-  let tentativi = 0;
 
-  while (true) {
-    rows.forEach(popolateRow);
+  // Verifica preliminare: abbastanza persone per tutti i ruoli?
+  const totalePersoneNecessarie = rows.length * 5; // 5 persone per riga (2 audio/video + 1 microfonista + 2 uscieri)
+  const totalePersoneDisponibili = elencoAudioVideo.length + elencoMicrofonisti.length + elencoUScieri.length;
+  
+  if (totalePersoneDisponibili < totalePersoneNecessarie / 2) {
+    alert("Attenzione: Il numero di persone disponibili potrebbe essere insufficiente per una distribuzione equilibrata.");
+  }
 
-    const conteggioElementi: Record<string, number> = {};
+  let tentativiGlobali = 0;
+  let successo = false;
+  let migliorDistribuzione: { conteggio: Record<string, number>; personeUtilizzate: number; maxOccorrenze: number } | null = null;
+  let migliorPunteggio = -Infinity;
 
-    // Conteggio degli elementi nelle celle non di data
-    rows.forEach((row) => {
-      const celleNonData = row.querySelectorAll("td:not(.data)") as NodeListOf<HTMLTableCellElement>;
-      celleNonData.forEach((cella) => {
-        if (cella.textContent){
-        const contenuto = cella.textContent.trim();
-        const elementi = contenuto.split(" - ");
-        elementi.forEach((elemento) => {
-          conteggioElementi[elemento] = (conteggioElementi[elemento] || 0) + 1;
-        });
+  while (tentativiGlobali < MAX_TENTATIVI_GLOBALI && !successo) {
+    let tutteLeRigheCompletate = true;
+    
+    // Prova a popolare tutte le righe
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i] as HTMLTableRowElement;
+      if (!popolateRow(row)) {
+        tutteLeRigheCompletate = false;
+        break;
       }
-      });
-    });
+    }
+    
+    // Se tutte le righe sono state completate, verifica la distribuzione
+    if (tutteLeRigheCompletate) {
+      const conteggioElementi = contaAssegnazioni();
+      const personeUtilizzate = Object.keys(conteggioElementi).length;
+      const maxOccorrenze = Object.values(conteggioElementi).length ? Math.max(...Object.values(conteggioElementi)) : 0;
 
-    // Verifica se c'è almeno un elemento con più di 3 occorrenze e tutti gli
-    // incaricati sono stati inseriti almeno una volta
-    let almenoUnElementoSuperioreAMax = false;
+      // Se la distribuzione è equilibrata bene, altrimenti valuta e salva come possibile fallback
+      if (isDistribuzioneEquilibrata()) {
+        successo = true;
+        contaElementi();
+        console.log(`Generazione completata con successo dopo ${tentativiGlobali + 1} tentativi`);
+        break;
+      } else {
+        // Punteggio semplice: più persone usate e meno occorrenze massime => migliore
+        const punteggio = personeUtilizzate - maxOccorrenze;
+        if (punteggio > migliorPunteggio) {
+          migliorPunteggio = punteggio;
+          migliorDistribuzione = { conteggio: conteggioElementi, personeUtilizzate, maxOccorrenze };
+        }
+      }
+    }
 
-for (const count of Object.keys(conteggioElementi)) {
-  if (conteggioElementi[count] > 3) {
-    almenoUnElementoSuperioreAMax = true;
-    break;
+    tentativiGlobali++;
   }
-}
 
-if (!almenoUnElementoSuperioreAMax && !ciSonoElementiInutilizzati()) {
-  contaElementi();
-  console.log(tentativi);
-  break;
-}
-
-
-    tentativi++;
+  if (!successo) {
+    if (migliorDistribuzione) {
+      console.warn(`Utilizzo migliore distribuzione trovata: ${migliorDistribuzione.personeUtilizzate} persone, max occorrenze ${migliorDistribuzione.maxOccorrenze}`);
+      contaElementi();
+    } else {
+      alert(`Impossibile trovare una combinazione equilibrata dopo ${MAX_TENTATIVI_GLOBALI} tentativi. \n           Suggerimenti:\n           - Verifica che ci siano abbastanza persone negli elenchi CSV\n           - Prova ad aggiungere più nominativi\n           - Riduci il numero di righe nella tabella`);
+      console.warn("Generazione fallita - distribuzione non equilibrata");
+    }
   }
 }
 
@@ -553,9 +585,10 @@ function aggiornaRiga() {
 
 function showOptions() {
   const showHideButton = document.getElementById("show-hide-last-row") as HTMLButtonElement;
-  const lastOptionData = selectData.lastElementChild as HTMLOptionElement;;
-  const lastOptionRow = selectRow.lastElementChild as HTMLOptionElement;;
+  const lastOptionData = selectData.lastElementChild as HTMLOptionElement;
+  const lastOptionRow = selectRow.lastElementChild as HTMLOptionElement;
   const lastOptionChanging = selectRowChanging.lastElementChild as HTMLOptionElement;
+  
   if (giornoPrimaAdunanzaDelMese + 28 <= ultimoGiorno) {
     alert(
       "Non è possibile nascondere o mostrare l'ultima riga di un giorno di adunanza valido"
@@ -565,9 +598,10 @@ function showOptions() {
     showHideButton.textContent = "Mostra ultima riga nascosta";
   } else {
     showRow();
-    lastOptionData.style.display = "block";
-    lastOptionRow.style.display = "block";
-    lastOptionChanging.style.display = "block";
+    // Controlli di sicurezza per evitare errori null
+    if (lastOptionData) lastOptionData.style.display = "block";
+    if (lastOptionRow) lastOptionRow.style.display = "block";
+    if (lastOptionChanging) lastOptionChanging.style.display = "block";
 
     showHideButton.textContent = "Nascondi ultima riga";
   }

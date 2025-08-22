@@ -1,0 +1,120 @@
+/* Stili moderni per l'area controlli (fuori dal <main>)
+   Design pulito, responsive e stampabile rimosso
+*/
+
+.no-print.controlli {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  background: linear-gradient(90deg, #ffffffcc, #f6f8fccc);
+  border: 1px solid rgba(20, 40, 80, 0.06);
+  border-radius: 10px;
+  padding: 14px;
+  margin: 14px 16px;
+  box-shadow: 0 6px 18px rgba(15, 30, 60, 0.04);
+  font-family: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* Centra tutto il contenuto della pagina */
+html, body {
+  height: 100%;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centra orizzontalmente */
+  justify-content: flex-start;
+  background: #f8fbff;
+  margin: 0;
+}
+
+/* Limita la larghezza del contenuto principale e centra internamente */
+main {
+  width: 100%;
+  max-width: 1100px;
+  box-sizing: border-box;
+  padding: 0 16px 32px;
+}
+
+/* Allinea i controlli alla stessa larghezza del main */
+.no-print.controlli {
+  width: 100%;
+  max-width: 1100px;
+  margin: 18px 0;
+}
+
+.no-print.controlli > div {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.no-print.controlli label {
+  font-weight: 600;
+  color: #223;
+  font-size: 0.95rem;
+}
+
+.no-print.controlli input[type="file"] {
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 8px;
+  border: 1px solid rgba(20,40,80,0.06);
+}
+
+.no-print.controlli select,
+.no-print.controlli input[type="text"],
+.no-print.controlli input[type="number"] {
+  border-radius: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(20,40,80,0.08);
+  background: linear-gradient(180deg,#fff,#fbfdff);
+  min-width: 120px;
+}
+
+.no-print.controlli button {
+  background: linear-gradient(180deg,#2b6ef6,#1e56d9);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 6px 14px rgba(30,86,217,0.12);
+}
+
+.no-print.controlli button#show-hide-last-row {
+  background: linear-gradient(180deg,#f6c85f,#f39c12);
+  color: #1a1200;
+}
+
+.no-print.controlli button#print-button {
+  background: linear-gradient(180deg,#3bd671,#28b85a);
+}
+
+.no-print.controlli #contatore-incarichi {
+  font-size: 0.9rem;
+  color: #123;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 8px;
+  border: 1px dashed rgba(20,40,80,0.04);
+}
+
+/* Responsive: su schermo piccolo impila i controlli */
+@media (max-width: 720px) {
+  .no-print.controlli {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .no-print.controlli > div {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Nascondi controlli nella stampa */
+@media print {
+  .no-print { display: none !important; }
+}

@@ -1,59 +1,55 @@
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-var elencoUScieri = [];
-var elencoMicrofonisti = [];
-var elencoAudioVideo = [];
-var fileInput = document.getElementById("file-csv");
+"use strict";
+const elencoUScieri = [];
+const elencoMicrofonisti = [];
+const elencoAudioVideo = [];
+const fileInput = document.getElementById("file-csv");
 function caricaFileCSV() {
-    var files = fileInput.files;
+    const files = fileInput.files;
     if (!files || files.length === 0) {
         alert("Nessun file CSV selezionato");
         return;
     }
-    var file = files[0];
-    var reader = new FileReader();
+    const file = files[0];
+    const reader = new FileReader();
     reader.onload = function () {
-        var csvData = reader.result;
-        var rows = csvData.split("\n");
-        // Salta la prima riga (intestazioni)
-        rows.shift();
+        const csvData = String(reader.result || "");
+        // Supporta CRLF o LF, rimuove righe vuote e spazi esterni
+        const rows = csvData
+            .split(/\r?\n/)
+            .map(r => r.trim())
+            .filter(r => r.length > 0);
+        // Salta la prima riga (intestazioni) se presente
+        if (rows.length > 0)
+            rows.shift();
         // Per ogni riga del file CSV...
-        for (var _i = 0, rows_1 = rows; _i < rows_1.length; _i++) {
-            var row = rows_1[_i];
-            var columns = row.split(",");
+        for (const row of rows) {
+            // parsing semplice: supporta campi quotati e rimuove virgolette esterne
+            const columns = row
+                .split(',')
+                .map(c => c.trim().replace(/^"|"$/g, ''));
             // Estrai i dati per ogni colonna
-            var nomeUsciere = columns[0];
-            var nomeMicrofonista = columns[1];
-            var nomeAudioVideo = columns[2];
-            // Aggiungi i dati agli array
-            if (nomeUsciere) {
+            const nomeUsciere = columns[0] || undefined;
+            const nomeMicrofonista = columns[1] || undefined;
+            const nomeAudioVideo = columns[2] || undefined;
+            // Aggiungi i dati agli array (evita stringhe vuote)
+            if (nomeUsciere)
                 elencoUScieri.push(nomeUsciere);
-            }
-            if (nomeMicrofonista) {
+            if (nomeMicrofonista)
                 elencoMicrofonisti.push(nomeMicrofonista);
-            }
-            if (nomeAudioVideo) {
+            if (nomeAudioVideo)
                 elencoAudioVideo.push(nomeAudioVideo);
-            }
         }
-        popolaIncarichi(); //popola con i dati del CSV
+        popolaIncarichi(); // popola con i dati del CSV
     };
     reader.readAsText(file);
 }
-var divMeseProgramma = document.getElementById("mese-programma");
-var dataCorrente = new Date();
+const divMeseProgramma = document.getElementById("mese-programma");
+let dataCorrente = new Date();
 // Aumentare la data corrente di un mese, così all'apertura è già al mese successivo a quello odierno
 dataCorrente.setMonth(dataCorrente.getMonth() + 1);
 dataCorrente = new Date(dataCorrente.getFullYear(), dataCorrente.getMonth(), 1);
 // Array dei nomi dei mesi
-var nomiMesi = [
+let nomiMesi = [
     "Gennaio",
     "Febbraio",
     "Marzo",
@@ -67,13 +63,13 @@ var nomiMesi = [
     "Novembre",
     "Dicembre",
 ];
-var meseSuccessivo = nomiMesi[dataCorrente.getMonth()];
-var annoSuccessivo = dataCorrente.getFullYear();
-var annoElementoHTML = document.getElementById("anno");
+let meseSuccessivo = nomiMesi[dataCorrente.getMonth()];
+let annoSuccessivo = dataCorrente.getFullYear();
+const annoElementoHTML = document.getElementById("anno");
 annoElementoHTML.value = annoSuccessivo.toString();
-var selectMese = document.getElementById("select-mese");
+const selectMese = document.getElementById("select-mese");
 // Cicla attraverso le option della select
-for (var i = 0; i < selectMese.options.length; i++) {
+for (let i = 0; i < selectMese.options.length; i++) {
     // Controlla se il value dell'opzione corrente è uguale a meseSuccessivo
     if (parseInt(selectMese.options[i].value) === dataCorrente.getMonth()) {
         // Imposta l'attributo "selected" alla option corrente
@@ -84,40 +80,47 @@ for (var i = 0; i < selectMese.options.length; i++) {
         selectMese.options[i].removeAttribute("selected");
     }
 } // Aggiungere il valore dinamicamente al div
-divMeseProgramma.textContent = "".concat(meseSuccessivo, " ").concat(annoSuccessivo);
-var table = document.getElementById("myTable");
-var tbody = document.querySelector("tbody");
-var rows = tbody.querySelectorAll("tr");
-var selectData = document.getElementById("select-data");
-var selectRow = document.getElementById("select-row");
-var selectRowChanging = document.getElementById("select-row-changing");
+divMeseProgramma.textContent = `${meseSuccessivo} ${annoSuccessivo}`;
+const table = document.getElementById("myTable");
+const tbody = document.querySelector("tbody");
+const rows = tbody.querySelectorAll("tr");
+const selectData = document.getElementById("select-data");
+const selectRow = document.getElementById("select-row");
+const selectRowChanging = document.getElementById("select-row-changing");
 function hideRow() {
-    var lastOptionData = selectData.lastElementChild;
-    var lastOptionRow = selectRow.lastElementChild;
-    var lastOptionChanging = selectRowChanging.lastElementChild;
-    var rowCount = table.rows.length;
+    const lastOptionData = selectData.lastElementChild;
+    const lastOptionRow = selectRow.lastElementChild;
+    const lastOptionChanging = selectRowChanging.lastElementChild;
+    let rowCount = table.rows.length;
     // Nascondi l'ultima riga le option data del div di modifica
     table.rows[rowCount - 1].style.display = "none";
-    lastOptionData.style.display = "none";
-    lastOptionRow.style.display = "none";
-    lastOptionChanging.style.display = "none";
-    var ultimaCellaData = celleData[celleData.length - 1];
+    // Controlli di sicurezza per evitare errori null
+    if (lastOptionData) {
+        lastOptionData.style.display = "none";
+        lastOptionData.textContent = "DATA";
+    }
+    if (lastOptionRow) {
+        lastOptionRow.style.display = "none";
+        lastOptionRow.textContent = "DATA";
+    }
+    if (lastOptionChanging) {
+        lastOptionChanging.style.display = "none";
+        lastOptionChanging.textContent = "DATA";
+    }
+    const ultimaCellaData = celleData[celleData.length - 1];
     ultimaCellaData.textContent = "DATA";
-    lastOptionData.textContent = "DATA";
-    lastOptionRow.textContent = "DATA";
-    lastOptionChanging.textContent = "DATA";
 }
 function showRow() {
-    var rowCount = table.rows.length;
+    let rowCount = table.rows.length;
     // Mostra l'ultima riga
     table.rows[rowCount - 1].style.display = "table-row";
 }
 // Popolare le date in tabella
-var celleData = document.querySelectorAll(".data"); //Salva tutte le celle con campo data
-var giornoPrimaAdunanzaDelMese = 1; // Inizializza a 1 o a qualsiasi giorno sia il primo giorno di adunanza del mese
-var giornoSettimanaCorrente = 1;
+const celleData = document.querySelectorAll(".data"); //Salva tutte le celle con campo data
+let giornoPrimaAdunanzaDelMese = 1; // Inizializza a 1 o a qualsiasi giorno sia il primo giorno di adunanza del mese
+let giornoSettimanaCorrente = 1;
 function populateDateCell() {
-    var meseCorrente = dataCorrente.getMonth() + 1;
+    const meseCorrente = dataCorrente.getMonth() + 1;
     giornoSettimanaCorrente = dataCorrente.getDay();
     // Cerca quale se c'è prima Domenica o Giovedì e che giorno è
     function PrimaGiooDom() {
@@ -131,12 +134,12 @@ function populateDateCell() {
         }
         return giornoSettimanaCorrente;
     }
-    var primoGiornoAdunanza = PrimaGiooDom();
-    var giorno1 = primoGiornoAdunanza === 4 ? "GIOVEDÌ" : "DOMENICA";
-    var giorno2 = primoGiornoAdunanza === 0 ? "GIOVEDÌ" : "DOMENICA";
-    var giornoAdunanza = giornoPrimaAdunanzaDelMese;
-    for (var i = 0; i < celleData.length; i += 2) {
-        celleData[i].textContent = "".concat(giorno1, " ").concat(giornoAdunanza, "/").concat(meseCorrente);
+    const primoGiornoAdunanza = PrimaGiooDom();
+    const giorno1 = primoGiornoAdunanza === 4 ? "GIOVEDÌ" : "DOMENICA";
+    const giorno2 = primoGiornoAdunanza === 0 ? "GIOVEDÌ" : "DOMENICA";
+    let giornoAdunanza = giornoPrimaAdunanzaDelMese;
+    for (let i = 0; i < celleData.length; i += 2) {
+        celleData[i].textContent = `${giorno1} ${giornoAdunanza}/${meseCorrente}`;
         giornoAdunanza += 7;
     }
     if (giorno1 === "GIOVEDÌ") {
@@ -145,18 +148,18 @@ function populateDateCell() {
     else {
         giornoAdunanza = giornoPrimaAdunanzaDelMese + 4;
     }
-    for (var i = 1; i < celleData.length; i += 2) {
-        celleData[i].textContent = "".concat(giorno2, " ").concat(giornoAdunanza, "/").concat(meseCorrente);
+    for (let i = 1; i < celleData.length; i += 2) {
+        celleData[i].textContent = `${giorno2} ${giornoAdunanza}/${meseCorrente}`;
         giornoAdunanza += 7;
     }
 }
 populateDateCell();
-var ultimoGiorno = 1;
+let ultimoGiorno = 1;
 function ultimoGiornoDelMese(data) {
     // Ottieni il mese successivo
-    var meseSuccessivo = new Date(data.getFullYear(), data.getMonth() + 1, 1);
+    let meseSuccessivo = new Date(data.getFullYear(), data.getMonth() + 1, 1);
     // Sottrai un giorno dalla data successiva per ottenere l'ultimo giorno del mese corrente
-    var dataUltimoGiorno = new Date(meseSuccessivo.getFullYear(), meseSuccessivo.getMonth(), 0);
+    const dataUltimoGiorno = new Date(meseSuccessivo.getFullYear(), meseSuccessivo.getMonth(), 0);
     ultimoGiorno = dataUltimoGiorno.getDate();
     return ultimoGiorno;
 }
@@ -170,27 +173,10 @@ else {
     showRow();
 }
 function contaElementi() {
-    var conteggio = {};
-    rows.forEach(function (row) {
-        var cells = row.querySelectorAll("td:not(.data)");
-        cells.forEach(function (cell) {
-            if (cell.textContent) {
-                var elementi = cell.textContent.split(" - ");
-                elementi.forEach(function (elemento) {
-                    elemento = elemento.trim();
-                    if (elemento in conteggio) {
-                        conteggio[elemento]++;
-                    }
-                    else {
-                        conteggio[elemento] = 1;
-                    }
-                });
-            }
-        });
-    });
-    var contatoreDiv = document.getElementById("contatore-incarichi");
-    var testoContatoreIncarichi = "<strong>Sono stati impiegati i seguenti fratelli:</strong>";
-    for (var elemento in conteggio) {
+    const conteggio = contaAssegnazioni();
+    let contatoreDiv = document.getElementById("contatore-incarichi");
+    let testoContatoreIncarichi = "<strong>Sono stati impiegati i seguenti fratelli:</strong>";
+    for (let elemento in conteggio) {
         if (conteggio[elemento] === 1) {
             testoContatoreIncarichi +=
                 elemento + " " + conteggio[elemento] + " volta | ";
@@ -211,51 +197,28 @@ function contaElementi() {
 }
 // Funzione per mescolare l'array così che siano in ordine casuale
 function shuffleArray(array) {
-    var _a;
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        _a = [array[j], array[i]], array[i] = _a[0], array[j] = _a[1];
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
 }
-// Funzione  che verifica che tutti gli addetti siano impiegati
+// Funzione che verifica che tutti gli addetti siano impiegati
 function ciSonoElementiInutilizzati() {
-    var rows = tbody.querySelectorAll("tr");
-    var conteggio = {};
-    rows.forEach(function (row) {
-        var cells = row.querySelectorAll("td:not(.data)");
-        cells.forEach(function (cell) {
-            if (cell.textContent) {
-                var elementi = cell.textContent.split(" - ");
-                elementi.forEach(function (elemento) {
-                    elemento = elemento.trim();
-                    if (elemento in conteggio) {
-                        conteggio[elemento]++;
-                    }
-                    else {
-                        conteggio[elemento] = 1;
-                    }
-                });
-            }
-        });
-    });
+    const conteggio = contaAssegnazioni();
     // Confronto con gli array
-    var elencoCompleto = __spreadArray(__spreadArray(__spreadArray([], elencoUScieri, true), elencoMicrofonisti, true), elencoAudioVideo, true);
-    var elementiInutilizzati = elencoCompleto.filter(function (elemento) {
-        return !(elemento in conteggio);
-    });
-    var stringaPrimoElementoInutilizzato = elementiInutilizzati[0];
-    return stringaPrimoElementoInutilizzato; // Se tutto ok, sarà vuoto, o meglio undefined
+    const elencoCompleto = [
+        ...elencoUScieri,
+        ...elencoMicrofonisti,
+        ...elencoAudioVideo,
+    ];
+    const elementiInutilizzati = elencoCompleto.filter(elemento => !(elemento in conteggio));
+    return elementiInutilizzati[0]; // Se tutto ok, sarà undefined
 }
-function sonoTuttiDiversi() {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    var visti = {}; // Oggetto per memorizzare gli elementi visti
+function sonoTuttiDiversi(...args) {
+    const visti = {}; // Oggetto per memorizzare gli elementi visti
     // Controllo di tutti gli elementi
-    for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
-        var arg = args_1[_a];
+    for (const arg of args) {
         if (arg === undefined) {
             continue; // Ignora gli elementi "undefined"
         }
@@ -269,94 +232,148 @@ function sonoTuttiDiversi() {
     // Se tutti gli elementi sono stati visti una sola volta, ritorna true
     return true;
 }
-var contaTentativi = 0;
+// Costanti per la generazione (più permissive)
+const MAX_TENTATIVI_RIGA = 200; // aumentato
+const MAX_TENTATIVI_GLOBALI = 1000; // aumentato
+const MAX_OCCORRENZE_PERSONA = 4; // aumentato
 // Funzione per popolare una riga della tabella
 function popolateRow(row) {
-    var files = fileInput.files;
+    const files = fileInput.files;
     if (!files || files.length === 0) {
         alert("Nessun file CSV selezionato");
-        return;
+        return false;
     }
-    var elencoAudioVideoCopy = shuffleArray(__spreadArray([], elencoAudioVideo, true));
-    var elencoMicrofonistiCopy = shuffleArray(__spreadArray([], elencoMicrofonisti, true));
-    var elencoUScieriCopy = shuffleArray(__spreadArray([], elencoUScieri, true));
-    var audioVideoCell = row.querySelector(".addetti-audio-video");
-    var microfonistaCell = row.querySelector(".addetto-microfonista");
-    var uscieriCell = row.querySelector(".addetti-uscieri");
-    var operatoreAudioVideo1 = elencoAudioVideoCopy.pop();
-    var operatoreAudioVideo2 = elencoAudioVideoCopy.pop();
-    var microfonista = elencoMicrofonistiCopy.pop();
-    var usciere1 = elencoUScieriCopy.pop();
-    var usciere2 = elencoUScieriCopy.pop();
-    // Se ci sono duplicati, rigenera la riga
-    while (!sonoTuttiDiversi(operatoreAudioVideo1, operatoreAudioVideo2, microfonista, usciere1, usciere2)) {
-        elencoAudioVideoCopy = shuffleArray(__spreadArray([], elencoAudioVideo, true));
-        elencoMicrofonistiCopy = shuffleArray(__spreadArray([], elencoMicrofonisti, true));
-        elencoUScieriCopy = shuffleArray(__spreadArray([], elencoUScieri, true));
-        operatoreAudioVideo1 = elencoAudioVideoCopy.pop();
-        operatoreAudioVideo2 = elencoAudioVideoCopy.pop();
-        microfonista = elencoMicrofonistiCopy.pop();
-        usciere1 = elencoUScieriCopy.pop();
-        usciere2 = elencoUScieriCopy.pop();
+    // Verifica che ci siano abbastanza persone per riempire una riga
+    if (elencoAudioVideo.length < 2 || elencoMicrofonisti.length < 1 || elencoUScieri.length < 2) {
+        console.warn("Non ci sono abbastanza persone negli elenchi per riempire una riga");
+        return false;
     }
-    audioVideoCell.textContent = "".concat(operatoreAudioVideo1, " - ").concat(operatoreAudioVideo2);
-    microfonistaCell.textContent = "".concat(microfonista);
-    uscieriCell.textContent = "".concat(usciere1, " - ").concat(usciere2);
-    // contaElementi();
+    const audioVideoCell = row.querySelector(".addetti-audio-video");
+    const microfonistaCell = row.querySelector(".addetto-microfonista");
+    const uscieriCell = row.querySelector(".addetti-uscieri");
+    let tentativi = 0;
+    while (tentativi < MAX_TENTATIVI_RIGA) {
+        const elencoAudioVideoCopy = shuffleArray([...elencoAudioVideo]);
+        const elencoMicrofonistiCopy = shuffleArray([...elencoMicrofonisti]);
+        const elencoUScieriCopy = shuffleArray([...elencoUScieri]);
+        const operatoreAudioVideo1 = elencoAudioVideoCopy.pop();
+        const operatoreAudioVideo2 = elencoAudioVideoCopy.pop();
+        const microfonista = elencoMicrofonistiCopy.pop();
+        const usciere1 = elencoUScieriCopy.pop();
+        const usciere2 = elencoUScieriCopy.pop();
+        // Verifica che tutti i ruoli siano diversi
+        if (sonoTuttiDiversi(operatoreAudioVideo1, operatoreAudioVideo2, microfonista, usciere1, usciere2)) {
+            audioVideoCell.textContent = `${operatoreAudioVideo1} - ${operatoreAudioVideo2}`;
+            microfonistaCell.textContent = `${microfonista}`;
+            uscieriCell.textContent = `${usciere1} - ${usciere2}`;
+            return true;
+        }
+        tentativi++;
+    }
+    console.warn(`Impossibile trovare una combinazione valida per la riga dopo ${MAX_TENTATIVI_RIGA} tentativi`);
+    return false;
+}
+// Funzione helper per contare le assegnazioni
+function contaAssegnazioni() {
+    const conteggio = {};
+    rows.forEach((row) => {
+        const celleNonData = row.querySelectorAll("td:not(.data)");
+        celleNonData.forEach((cella) => {
+            if (cella.textContent) {
+                const contenuto = cella.textContent.trim();
+                if (contenuto && contenuto !== '') {
+                    const elementi = contenuto.split(" - ").map(el => el.trim()).filter(el => el.length > 0);
+                    elementi.forEach((elemento) => {
+                        conteggio[elemento] = (conteggio[elemento] || 0) + 1;
+                    });
+                }
+            }
+        });
+    });
+    return conteggio;
+}
+// Funzione per verificare se la distribuzione è equilibrata
+function isDistribuzioneEquilibrata() {
+    const conteggioElementi = contaAssegnazioni();
+    // Verifica che nessuno abbia più del massimo consentito
+    const almenoUnElementoSuperioreAMax = Object.values(conteggioElementi).some(count => count > MAX_OCCORRENZE_PERSONA);
+    // Verifica se ci sono elementi inutilizzati
+    const elementoInutilizzato = ciSonoElementiInutilizzati();
+    // Calcola la percentuale di persone utilizzate
+    const elencoCompleto = [...elencoUScieri, ...elencoMicrofonisti, ...elencoAudioVideo];
+    const personeUtilizzate = Object.keys(conteggioElementi).length;
+    const percentualeUtilizzo = elencoCompleto.length > 0 ? personeUtilizzate / elencoCompleto.length : 0;
+    // Considera accettabile se almeno l'80% delle persone è stato utilizzato
+    const utilizzoSufficiente = percentualeUtilizzo >= 0.8 || !elementoInutilizzato;
+    return !almenoUnElementoSuperioreAMax && utilizzoSufficiente;
 }
 // Funzione per popolare tutti gli incarichi
 function popolaIncarichi() {
-    var files = fileInput.files;
+    const files = fileInput.files;
     if (!files || files.length === 0) {
         alert("Nessun file CSV selezionato");
         return;
     }
-    var tentativi = 0;
-    var _loop_1 = function () {
-        rows.forEach(popolateRow);
-        var conteggioElementi = {};
-        // Conteggio degli elementi nelle celle non di data
-        rows.forEach(function (row) {
-            var celleNonData = row.querySelectorAll("td:not(.data)");
-            celleNonData.forEach(function (cella) {
-                if (cella.textContent) {
-                    var contenuto = cella.textContent.trim();
-                    var elementi = contenuto.split(" - ");
-                    elementi.forEach(function (elemento) {
-                        conteggioElementi[elemento] = (conteggioElementi[elemento] || 0) + 1;
-                    });
-                }
-            });
-        });
-        // Verifica se c'è almeno un elemento con più di 3 occorrenze e tutti gli
-        // incaricati sono stati inseriti almeno una volta
-        var almenoUnElementoSuperioreAMax = false;
-        for (var _i = 0, _a = Object.keys(conteggioElementi); _i < _a.length; _i++) {
-            var count = _a[_i];
-            if (conteggioElementi[count] > 3) {
-                almenoUnElementoSuperioreAMax = true;
+    // Verifica preliminare: abbastanza persone per tutti i ruoli?
+    const totalePersoneNecessarie = rows.length * 5; // 5 persone per riga (2 audio/video + 1 microfonista + 2 uscieri)
+    const totalePersoneDisponibili = elencoAudioVideo.length + elencoMicrofonisti.length + elencoUScieri.length;
+    if (totalePersoneDisponibili < totalePersoneNecessarie / 2) {
+        alert("Attenzione: Il numero di persone disponibili potrebbe essere insufficiente per una distribuzione equilibrata.");
+    }
+    let tentativiGlobali = 0;
+    let successo = false;
+    let migliorDistribuzione = null;
+    let migliorPunteggio = -Infinity;
+    while (tentativiGlobali < MAX_TENTATIVI_GLOBALI && !successo) {
+        let tutteLeRigheCompletate = true;
+        // Prova a popolare tutte le righe
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            if (!popolateRow(row)) {
+                tutteLeRigheCompletate = false;
                 break;
             }
         }
-        if (!almenoUnElementoSuperioreAMax && !ciSonoElementiInutilizzati()) {
-            contaElementi();
-            console.log(tentativi);
-            return "break";
+        // Se tutte le righe sono state completate, verifica la distribuzione
+        if (tutteLeRigheCompletate) {
+            const conteggioElementi = contaAssegnazioni();
+            const personeUtilizzate = Object.keys(conteggioElementi).length;
+            const maxOccorrenze = Object.values(conteggioElementi).length ? Math.max(...Object.values(conteggioElementi)) : 0;
+            // Se la distribuzione è equilibrata bene, altrimenti valuta e salva come possibile fallback
+            if (isDistribuzioneEquilibrata()) {
+                successo = true;
+                contaElementi();
+                console.log(`Generazione completata con successo dopo ${tentativiGlobali + 1} tentativi`);
+                break;
+            }
+            else {
+                // Punteggio semplice: più persone usate e meno occorrenze massime => migliore
+                const punteggio = personeUtilizzate - maxOccorrenze;
+                if (punteggio > migliorPunteggio) {
+                    migliorPunteggio = punteggio;
+                    migliorDistribuzione = { conteggio: conteggioElementi, personeUtilizzate, maxOccorrenze };
+                }
+            }
         }
-        tentativi++;
-    };
-    while (true) {
-        var state_1 = _loop_1();
-        if (state_1 === "break")
-            break;
+        tentativiGlobali++;
+    }
+    if (!successo) {
+        if (migliorDistribuzione) {
+            console.warn(`Utilizzo migliore distribuzione trovata: ${migliorDistribuzione.personeUtilizzate} persone, max occorrenze ${migliorDistribuzione.maxOccorrenze}`);
+            contaElementi();
+        }
+        else {
+            alert(`Impossibile trovare una combinazione equilibrata dopo ${MAX_TENTATIVI_GLOBALI} tentativi. \n           Suggerimenti:\n           - Verifica che ci siano abbastanza persone negli elenchi CSV\n           - Prova ad aggiungere più nominativi\n           - Riduci il numero di righe nella tabella`);
+            console.warn("Generazione fallita - distribuzione non equilibrata");
+        }
     }
 }
 //MODIFICHE MANUALI
 // Scelta manuale del mese
-var aggiornaDataButton = document.getElementById("aggiorna-data");
+const aggiornaDataButton = document.getElementById("aggiorna-data");
 aggiornaDataButton.addEventListener("click", function () {
-    var meseSelezionato = parseInt(selectMese.value);
-    var annoSelezionato = parseInt(annoElementoHTML.value);
+    let meseSelezionato = parseInt(selectMese.value);
+    let annoSelezionato = parseInt(annoElementoHTML.value);
     // Verifica se il mese è valido (da 0 a 11) e l'anno è un numero
     if (!isNaN(meseSelezionato) &&
         meseSelezionato >= 0 &&
@@ -366,7 +383,7 @@ aggiornaDataButton.addEventListener("click", function () {
         annoSelezionato <= 2100) {
         dataCorrente = new Date(annoSelezionato, meseSelezionato, 1);
         // Aggiorna il valore nel div
-        divMeseProgramma.textContent = "".concat(nomiMesi[meseSelezionato], " ").concat(annoSelezionato);
+        divMeseProgramma.textContent = `${nomiMesi[meseSelezionato]} ${annoSelezionato}`;
         populateDateCell();
         ultimoGiorno = ultimoGiornoDelMese(dataCorrente);
         ultimoGiorno = ultimoGiornoDelMese(dataCorrente);
@@ -391,15 +408,15 @@ function popolaOptionDate() {
     selectRowChanging.innerHTML = "";
     celleData.forEach(function (cell, index) {
         if (cell.textContent) {
-            var valore = cell.textContent.trim();
+            let valore = cell.textContent.trim();
             // Creare due opzioni separate per ciascun select
-            var option1 = document.createElement("option");
+            let option1 = document.createElement("option");
             option1.value = index.toString();
             option1.textContent = valore;
-            var option2 = document.createElement("option");
+            let option2 = document.createElement("option");
             option2.value = index.toString();
             option2.textContent = valore;
-            var option3 = document.createElement("option");
+            let option3 = document.createElement("option");
             option3.value = index.toString();
             option3.textContent = valore;
             selectData.appendChild(option1);
@@ -412,13 +429,13 @@ popolaOptionDate();
 function cambiaData() {
     // Modifica la data di una riga
     // Ottieni la cella selezionata
-    var indiceCellaSelezionata = parseInt(selectData.value);
-    var celle = document.querySelectorAll(".data");
-    var cellaSelezionata = celle[indiceCellaSelezionata];
-    var pattern = /^(DOMENICA|LUNEDÌ|MARTEDÌ|MERCOLEDÌ|GIOVEDÌ|VENERDÌ|SABATO)\s\d+\/\d+$/;
+    let indiceCellaSelezionata = parseInt(selectData.value);
+    let celle = document.querySelectorAll(".data");
+    let cellaSelezionata = celle[indiceCellaSelezionata];
+    let pattern = /^(DOMENICA|LUNEDÌ|MARTEDÌ|MERCOLEDÌ|GIOVEDÌ|VENERDÌ|SABATO)\s\d+\/\d+$/;
     // Ottieni il testo da iniettare
-    var cambiaDataButton = document.getElementById("cambiaData");
-    var testoDaIniettare = cambiaDataButton.value.toUpperCase();
+    const cambiaDataButton = document.getElementById("cambiaData");
+    let testoDaIniettare = cambiaDataButton.value.toUpperCase();
     // Inietta il testo nella cella selezionata
     if (pattern.test(testoDaIniettare)) {
         cellaSelezionata.textContent = testoDaIniettare;
@@ -429,21 +446,21 @@ function cambiaData() {
     }
     cambiaDataButton.value = "";
 }
-var modificaRigaButton = document.getElementById("modifica-riga");
+const modificaRigaButton = document.getElementById("modifica-riga");
 function modificaRiga() {
     // Per inserire del testo al posto dei nominativi
     // Ottieni il valore selezionato dalla option
-    var selectedIndex = parseInt(selectRow.value);
+    let selectedIndex = parseInt(selectRow.value);
     // Trova la riga corrispondente
-    var row = celleData[selectedIndex].parentNode;
+    const row = celleData[selectedIndex].parentNode;
     // Modifica le celle della riga
-    var cells = row.querySelectorAll("td");
+    const cells = row.querySelectorAll("td");
     cells.forEach(function (cell) {
         if (cell.classList.contains("addetto-microfonista")) {
             // Trasforma la cella con classe .addetti-audio-video in colspan 5
             cell.colSpan = 5;
             // Inserisci il testo dall'input modifica-riga
-            var inputValue = modificaRigaButton.value;
+            let inputValue = modificaRigaButton.value;
             cell.textContent = inputValue;
         }
         else if (!cell.classList.contains("data")) {
@@ -454,11 +471,11 @@ function modificaRiga() {
     modificaRigaButton.value = "";
 }
 function ripristinaRiga() {
-    var selectedIndex = parseInt(selectRow.value);
+    let selectedIndex = parseInt(selectRow.value);
     // Trova la riga corrispondente
-    var row = celleData[selectedIndex].parentNode;
+    let row = celleData[selectedIndex].parentNode;
     // Modifica le celle della riga
-    var cells = row.querySelectorAll("td");
+    const cells = row.querySelectorAll("td");
     cells.forEach(function (cell) {
         cell.style.display = "table-cell";
         if (cell.classList.contains("addetti-audio-video")) {
@@ -472,18 +489,16 @@ function ripristinaRiga() {
     popolateRow(row);
 }
 function aggiornaRiga() {
-    var selectedIndex = parseInt(selectRowChanging.value);
+    let selectedIndex = parseInt(selectRowChanging.value);
     // Trova la riga corrispondente
-    var row = celleData[selectedIndex].parentNode;
+    let row = celleData[selectedIndex].parentNode;
     popolateRow(row);
 }
 function showOptions() {
-    var showHideButton = document.getElementById("show-hide-last-row");
-    var lastOptionData = selectData.lastElementChild;
-    ;
-    var lastOptionRow = selectRow.lastElementChild;
-    ;
-    var lastOptionChanging = selectRowChanging.lastElementChild;
+    const showHideButton = document.getElementById("show-hide-last-row");
+    const lastOptionData = selectData.lastElementChild;
+    const lastOptionRow = selectRow.lastElementChild;
+    const lastOptionChanging = selectRowChanging.lastElementChild;
     if (giornoPrimaAdunanzaDelMese + 28 <= ultimoGiorno) {
         alert("Non è possibile nascondere o mostrare l'ultima riga di un giorno di adunanza valido");
     }
@@ -493,9 +508,13 @@ function showOptions() {
     }
     else {
         showRow();
-        lastOptionData.style.display = "block";
-        lastOptionRow.style.display = "block";
-        lastOptionChanging.style.display = "block";
+        // Controlli di sicurezza per evitare errori null
+        if (lastOptionData)
+            lastOptionData.style.display = "block";
+        if (lastOptionRow)
+            lastOptionRow.style.display = "block";
+        if (lastOptionChanging)
+            lastOptionChanging.style.display = "block";
         showHideButton.textContent = "Nascondi ultima riga";
     }
 }
@@ -504,12 +523,12 @@ function ripristinaDataRiga() {
     popolaOptionDate();
 }
 //funzione per cambiare anno dell'input con la rotella del mouse
-annoElementoHTML.addEventListener("wheel", function (event) {
-    var input = event.target;
+annoElementoHTML.addEventListener("wheel", (event) => {
+    const input = event.target;
     if (input && typeof input.value === "string") {
-        var newValue = parseInt(input.value) + (event.deltaY > 0 ? -1 : 1);
-        var min = parseInt(input.min || "0");
-        var max = parseInt(input.max || "100");
+        const newValue = parseInt(input.value) + (event.deltaY > 0 ? -1 : 1);
+        const min = parseInt(input.min || "0");
+        const max = parseInt(input.max || "100");
         if (newValue >= min && newValue <= max) {
             input.value = newValue.toString();
         }
