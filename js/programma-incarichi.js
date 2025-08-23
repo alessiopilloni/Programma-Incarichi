@@ -137,20 +137,15 @@ function populateDateCell() {
     const primoGiornoAdunanza = PrimaGiooDom();
     const giorno1 = primoGiornoAdunanza === 4 ? "GIOVEDÌ" : "DOMENICA";
     const giorno2 = primoGiornoAdunanza === 0 ? "GIOVEDÌ" : "DOMENICA";
-    let giornoAdunanza = giornoPrimaAdunanzaDelMese;
-    for (let i = 0; i < celleData.length; i += 2) {
-        celleData[i].textContent = `${giorno1} ${giornoAdunanza}/${meseCorrente}`;
-        giornoAdunanza += 7;
-    }
-    if (giorno1 === "GIOVEDÌ") {
-        giornoAdunanza = giornoPrimaAdunanzaDelMese + 3;
-    }
-    else {
-        giornoAdunanza = giornoPrimaAdunanzaDelMese + 4;
-    }
-    for (let i = 1; i < celleData.length; i += 2) {
-        celleData[i].textContent = `${giorno2} ${giornoAdunanza}/${meseCorrente}`;
-        giornoAdunanza += 7;
+    // Offset per il primo giorno della seconda serie (se la prima adunanza è GIOVEDÌ la seconda è +3, altrimenti +4)
+    const offsetSecondo = primoGiornoAdunanza === 4 ? 3 : 4;
+    // Un solo ciclo: gli indici pari sono la prima serie, gli indici dispari la seconda.
+    for (let i = 0; i < celleData.length; i++) {
+        const serieIndex = Math.floor(i / 2);
+        const isPrimaSerie = i % 2 === 0;
+        const giornoNumero = giornoPrimaAdunanzaDelMese + (isPrimaSerie ? serieIndex * 7 : offsetSecondo + serieIndex * 7);
+        const nomeGiorno = isPrimaSerie ? giorno1 : giorno2;
+        celleData[i].textContent = `${nomeGiorno} ${giornoNumero}/${meseCorrente}`;
     }
 }
 populateDateCell();
@@ -235,9 +230,23 @@ function sonoTuttiDiversi(...args) {
 // Costanti per la generazione (più permissive)
 const MAX_TENTATIVI_RIGA = 200; // aumentato
 const MAX_TENTATIVI_GLOBALI = 1000; // aumentato
-const MAX_OCCORRENZE_PERSONA = 4; // aumentato
+const MAX_OCCORRENZE_PERSONA = 3; // aumentato
 // Funzione per popolare una riga della tabella
-function popolateRow(row) {
+// Restituisce l'insieme dei nominativi assegnati nella riga precedente (usata per evitare ripetizioni consecutive)
+function getPrevAssigned(index) {
+    const result = new Set();
+    if (index <= 0)
+        return result;
+    const prevRow = rows[index - 1];
+    const celle = prevRow.querySelectorAll("td:not(.data)");
+    celle.forEach(cell => {
+        if (!cell.textContent)
+            return;
+        cell.textContent.split(" - ").map(s => s.trim()).filter(Boolean).forEach(name => result.add(name));
+    });
+    return result;
+}
+function popolateRow(row, prevAssigned) {
     const files = fileInput.files;
     if (!files || files.length === 0) {
         alert("Nessun file CSV selezionato");
@@ -253,15 +262,25 @@ function popolateRow(row) {
     const uscieriCell = row.querySelector(".addetti-uscieri");
     let tentativi = 0;
     while (tentativi < MAX_TENTATIVI_RIGA) {
+        // Copie mescolate
         const elencoAudioVideoCopy = shuffleArray([...elencoAudioVideo]);
         const elencoMicrofonistiCopy = shuffleArray([...elencoMicrofonisti]);
         const elencoUScieriCopy = shuffleArray([...elencoUScieri]);
-        const operatoreAudioVideo1 = elencoAudioVideoCopy.pop();
-        const operatoreAudioVideo2 = elencoAudioVideoCopy.pop();
-        const microfonista = elencoMicrofonistiCopy.pop();
-        const usciere1 = elencoUScieriCopy.pop();
-        const usciere2 = elencoUScieriCopy.pop();
-        // Verifica che tutti i ruoli siano diversi
+        // Filtra i candidati eliminando quelli presenti nella riga precedente
+        const audioCandidates = elencoAudioVideoCopy.filter(x => x && !prevAssigned.has(x));
+        const microCandidates = elencoMicrofonistiCopy.filter(x => x && !prevAssigned.has(x));
+        const usciereCandidates = elencoUScieriCopy.filter(x => x && !prevAssigned.has(x));
+        // Se non ci sono abbastanza candidati distinti, aborta tentativo (fallback sarà gestito a livello globale)
+        if (audioCandidates.length < 2 || microCandidates.length < 1 || usciereCandidates.length < 2) {
+            tentativi++;
+            continue;
+        }
+        const operatoreAudioVideo1 = audioCandidates.pop();
+        const operatoreAudioVideo2 = audioCandidates.pop();
+        const microfonista = microCandidates.pop();
+        const usciere1 = usciereCandidates.pop();
+        const usciere2 = usciereCandidates.pop();
+        // Verifica che tutti i ruoli siano diversi tra loro
         if (sonoTuttiDiversi(operatoreAudioVideo1, operatoreAudioVideo2, microfonista, usciere1, usciere2)) {
             audioVideoCell.textContent = `${operatoreAudioVideo1} - ${operatoreAudioVideo2}`;
             microfonistaCell.textContent = `${microfonista}`;
@@ -303,8 +322,8 @@ function isDistribuzioneEquilibrata() {
     const elencoCompleto = [...elencoUScieri, ...elencoMicrofonisti, ...elencoAudioVideo];
     const personeUtilizzate = Object.keys(conteggioElementi).length;
     const percentualeUtilizzo = elencoCompleto.length > 0 ? personeUtilizzate / elencoCompleto.length : 0;
-    // Considera accettabile se almeno l'80% delle persone è stato utilizzato
-    const utilizzoSufficiente = percentualeUtilizzo >= 0.8 || !elementoInutilizzato;
+    // Considera accettabile se il 100% delle persone è stato utilizzato
+    const utilizzoSufficiente = percentualeUtilizzo >= 1.00 || !elementoInutilizzato;
     return !almenoUnElementoSuperioreAMax && utilizzoSufficiente;
 }
 // Funzione per popolare tutti gli incarichi
@@ -329,7 +348,8 @@ function popolaIncarichi() {
         // Prova a popolare tutte le righe
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
-            if (!popolateRow(row)) {
+            const prevAssigned = getPrevAssigned(i);
+            if (!popolateRow(row, prevAssigned)) {
                 tutteLeRigheCompletate = false;
                 break;
             }
@@ -486,13 +506,15 @@ function ripristinaRiga() {
             cell.colSpan = 1;
         }
     });
-    popolateRow(row);
+    const prevAssignedRip = getPrevAssigned(selectedIndex);
+    popolateRow(row, prevAssignedRip);
 }
 function aggiornaRiga() {
     let selectedIndex = parseInt(selectRowChanging.value);
     // Trova la riga corrispondente
     let row = celleData[selectedIndex].parentNode;
-    popolateRow(row);
+    const prevAssignedAgg = getPrevAssigned(selectedIndex);
+    popolateRow(row, prevAssignedAgg);
 }
 function showOptions() {
     const showHideButton = document.getElementById("show-hide-last-row");
