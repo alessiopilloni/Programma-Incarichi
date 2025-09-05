@@ -15,21 +15,23 @@
     <script src="js/programma-incarichi.js" defer></script>
   </head>
   <body>
+  <a class="skip-link" href="#myTable">Salta al contenuto</a>
     <div class="no-print controlli">
       <div>
         <label for="file-pdf" id="file-pdf-label">Carica il file pdf: </label>
         <input type="file" id="file-pdf" accept=".pdf" />
-        <button id="bottone-carica-pdf">Carica</button>
-        <select id="tema-selector">
+    <button id="bottone-carica-pdf" type="button" aria-controls="myTable" aria-label="Carica PDF">Carica</button>
+    <label for="tema-selector" class="sr-only">Seleziona tema</label>
+    <select id="tema-selector" aria-label="Seleziona tema">
           <option value="classico">Tema Classico</option>
           <option value="moderno">Tema Moderno</option>
           <option value="material">Tema Material</option>
         </select>
-  <button id="bottone-stampa">Stampa</button>
+  <button id="bottone-stampa" type="button" aria-label="Stampa il programma">Stampa</button>
       </div>
     </div>
     <main>
-      <header>
+  <header role="banner">
         <div id="intestazione-mese-container">
           <div>
             <div class="bold" id="congregazione">
@@ -40,22 +42,23 @@
           <div id="mese-programma"><!--Per esempio Marzo 2025--></div>
         </div>
       </header>
-      <table id="myTable">
+      <table id="myTable" aria-describedby="mese-programma">
+        <caption class="sr-only" id="table-caption">Programma incarichi per il mese indicato nella testata</caption>
         <thead>
           <tr>
-            <th>
+            <th scope="col">
               <div class="header-icon-placeholder" aria-hidden="true"></div>
               DATA
             </th>
-            <th>
+            <th scope="col">
               <img src="img/audio-video.webp" alt="Audio Video" />
               AUDIO / VIDEO
             </th>
-            <th>
+            <th scope="col">
               <img src="img/microfono.webp" alt="Microfono" />
               MICROFONISTA
             </th>
-            <th>
+            <th scope="col">
               <img src="img/uscieri.webp" alt="Uscieri" />
               USCIERI
             </th>
