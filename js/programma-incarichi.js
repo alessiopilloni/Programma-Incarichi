@@ -3,7 +3,45 @@
  * Carica un PDF, estrae il testo usando pdf.js e popola la tabella degli incarichi
  */
 
+/*
+  Indice sezioni (TOC)
+  1) Costanti globali
+    - PDF_CDN_URL, PDF_WORKER_URL, MONTHS_IT, DAYS_IT
+
+  2) Funzioni principali
+    - initApp
+    - setupEventListeners
+    - handlePdfLoad
+    - loadPdfJs
+    - extractTextFromPdf
+    - parseSchedule
+    - populateTable
+
+  3) Funzioni ausiliarie (creazione/formatting righe)
+    - createScheduleEntry
+    - createTableRow
+    - buildDisplayNameMap
+
+  4) Gestione tema e UI
+    - setupThemeSelector
+    - applyTheme
+    - updateMonthHeader
+    - setLoadingState
+
+  5) Utility
+    - parseName
+    - getMonthName
+    - formatWeekday
+
+  6) Inizializzazione
+    - DOMContentLoaded -> initApp
+
+  Nota: usare i marcatori // #region e // #endregion nel proprio editor per comprimere/espandere le sezioni.
+*/
+
 // ===== COSTANTI GLOBALI =====
+// #region GLOBAL_CONSTANTS
+// #region Constants
 const PDF_CDN_URL = "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.min.js";
 const PDF_WORKER_URL =
   "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js";
@@ -32,8 +70,10 @@ const DAYS_IT = [
   "VENERDÌ",
   "SABATO",
 ];
+// #endregion
 
 // ===== FUNZIONI PRINCIPALI =====
+// #region MAIN_FUNCTIONS
 
 /**
  * Inizializza l'applicazione
@@ -59,6 +99,7 @@ function setupEventListeners() {
     printButton.addEventListener("click", () => window.print());
   }
 }
+// #endregion
 
 /**
  * Gestisce il caricamento e parsing del PDF
@@ -186,6 +227,7 @@ function populateTable(schedule) {
 }
 
 // ===== FUNZIONI AUSILIARIE =====
+// #region AUXILIARY_FUNCTIONS
 
 /**
  * Crea un oggetto entry dello schedule
@@ -285,6 +327,7 @@ function createTableRow(entry, displayNameFunction) {
 
   return row;
 }
+// #endregion
 
 /**
  * Costruisce una mappa nomeCompleto -> formato COGNOME N.
@@ -306,6 +349,8 @@ function buildDisplayNameMap(schedule) {
 
   return (name) => displayMap.get(name) || name.toUpperCase();
 }
+
+// #region THEME_AND_UI
 
 /**
  * Configura il selettore dei temi
@@ -332,6 +377,10 @@ function applyTheme(theme) {
     document.body.classList.add("tema-material");
   }
 }
+
+// #endregion
+
+// #region UTILITIES
 
 /**
  * Aggiorna l'intestazione del mese
@@ -396,6 +445,8 @@ function getMonthName(monthNumber) {
   return MONTHS_IT[(monthNumber - 1) % 12] || "";
 }
 
+// #endregion
+
 /**
  * Formatta la data come "GIORNO_SETTIMANA NUMERO" (es. "GIOVEDÌ 4")
  */
@@ -407,4 +458,7 @@ function formatWeekday(day, month, year) {
 
 // ===== INIZIALIZZAZIONE =====
 
+// ===== INIZIALIZZAZIONE =====
+// #region INIT
 document.addEventListener("DOMContentLoaded", initApp);
+// #endregion
