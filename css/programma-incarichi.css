@@ -1,19 +1,72 @@
-body,
-html {
+/*
+  programma-incarichi.css
+  Ristrutturato: variabili, reset, componenti, temi
+*/
+
+/* 1) Reset / normalizzazione minima */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
-  font-family: "Open Sans", sans-serif;
+}
+
+/* 2) Variabili globali */
+:root {
+  --font-family-base: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --color-bg: #ffffff;
+  --color-muted: #f1f1ef;
+  --color-accent: #6200ee;
+  --color-primary: #007bff;
+  --color-success: #00bd00;
+  --table-strip-odd: #f2faee;
+  --table-strip-even: #eaf0f6;
+  --text-color: #222;
+  --radius: 6px;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --icon-height: 40px;
+  --page-width: 210mm;
+  --page-height: 297mm;
+  --table-font-size: 13.2px;
+}
+
+/* 3) Base elements */
+html, body {
+  font-family: var(--font-family-base);
+  color: var(--text-color);
+  background: var(--color-bg);
+}
+
+main {
+  width: var(--page-width);
+  height: var(--page-height);
+  margin: 0 auto;
+  font-weight: 700;
+}
+
+header {
+  background-color: var(--color-muted);
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
 }
 
 #congregazione {
   font-size: 12.43px;
 }
+
 #intestazione-mese-container {
   width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: flex-end;
+  gap: 1rem;
 }
+
 #intestazione {
   font-size: 26.73px;
 }
@@ -22,140 +75,108 @@ html {
   font-weight: 400;
   text-transform: uppercase;
 }
-main {
-  width: 210mm; 
-  height: 297mm; 
-  margin: 0 auto; 
-  font-weight: bold;
-}
-table {
+
+/* 4) Layout: tabella */
+.table {
   margin: 3rem auto;
   width: 90%;
-  font-size: 13.2px;
+}
+
+table {
+  width: 100%;
+  font-size: var(--table-font-size);
   text-transform: uppercase;
   border-collapse: collapse;
 }
-th,
-td {
-  padding: 1rem;
+
+thead th {
+  font-weight: 700;
+  padding: var(--spacing-sm) var(--spacing-md);
   text-align: center;
 }
+
+th, td {
+  padding: var(--spacing-md);
+  text-align: center;
+}
+
 tr {
   border-bottom: 0.5rem solid white;
 }
+
 table img,
 .header-icon-placeholder {
-  height: 40px;
+  height: var(--icon-height);
   width: auto;
   display: block;
   margin: 0 auto;
   box-sizing: border-box;
   padding: 0;
-}
-tbody tr:nth-child(even) {
-  background-color: #eaf0f6;
+  margin-bottom: var(--spacing-sm); /* Added margin-bottom for images */
 }
 
 tbody tr:nth-child(odd) {
-  background-color: #f2faee;
+  background-color: var(--table-strip-odd);
 }
-header {
-  background-color: #f1f1ef;
-  display: flex;
-  align-items: center;
-  height: 10%;
+tbody tr:nth-child(even) {
+  background-color: var(--table-strip-even);
 }
 
-/* CONTROLLI */
+.data {
+  font-weight: 700;
+}
+
+/* 5) Componenti UI: controlli */
 .controlli {
-  width: 210mm;
+  width: var(--page-width);
   display: flex;
-  margin: 1rem auto;
+  margin: var(--spacing-md) auto;
   align-items: center;
   flex-direction: column;
-  gap: 1rem;
-  border: 1px solid black;
+  gap: var(--spacing-md);
+  border: 1px solid #000;
   border-radius: 1rem;
-  padding: 1rem;
+  padding: var(--spacing-md);
   position: sticky;
   top: -90px;
-  background-color: white;
+  background-color: var(--color-bg);
 }
-button,
-select,
-input {
+
+button, select, input {
   border-radius: 5px;
   padding: 0.5rem;
-  transition: all ease-in-out 0.01s;
-
+  transition: transform 0.05s ease;
 }
+
 button:active {
   transform: scale(0.95);
-  transition: all ease-in-out 0.01s;
 }
+
 #print-button {
-  background-color: rgb(0, 189, 0);
-  color: white;
+  background-color: var(--color-success);
+  color: #fff;
 }
-#print-button:hover{
-  background-color: rgb(0, 130, 0);
+
+#print-button:hover {
+  background-color: #008f00;
 }
+
 #contatore-incarichi {
   display: flex;
   list-style: none;
   flex-direction: row;
-  width: 210mm;
+  width: var(--page-width);
   flex-wrap: wrap;
   margin: 0 auto;
-  gap: 1rem;
-  border: 1px solid black;
-}
-@media print {
-  .no-print {
-    display: none;
-  }
-}
-.addetto-microfonista, .center-text {
-  text-align: center;
-}
-
-#avviso-caricamento{
-  display: none;
-}
-#file-csv{
-  position: absolute;
-  right: 0;
-  top: 0.8rem;
-  opacity: 0;
-  cursor: pointer;
-}
-#file-csv-label{
-  position: relative;
-  top:0.8rem;
-  overflow: hidden;
-  margin: 0;
-  font-size: 0.9rem;
-  height: 1rem; 
-  background-color: #f1f1ef; 
-  border: 1px solid black;
-  border-radius: 5px; 
-  cursor: pointer;
-  display: inline-block;
-  text-align: center;
-  line-height: 1rem; 
-  padding: 0.5rem;
-  color: #333; 
+  gap: var(--spacing-md);
+  border: 1px solid #000;
 }
 
 .no-print.controlli {
-  background-color: #f1f1ef;
+  background-color: var(--color-muted);
   padding: 20px;
   border-radius: 5px;
   margin-bottom: 20px;
-}
-
-.no-print.controlli div {
-  margin-bottom: 10px;
 }
 
 .no-print.controlli label {
@@ -174,223 +195,91 @@ button:active {
 
 .no-print.controlli button {
   padding: 8px 15px;
-  background-color: #007bff;
+  background-color: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 3px;
   cursor: pointer;
 }
 
-.no-print.controlli button:hover {
-  background-color: #0056b3;
+.center-text, .addetto-microfonista {
+  text-align: center;
 }
 
-#contatore-incarichi {
-  margin-top: 10px;
-  font-weight: bold;
+#avviso-caricamento{ display: none; }
+
+#file-csv{ position: absolute; right: 0; top: 0.8rem; opacity: 0; cursor: pointer; }
+
+#file-csv-label{
+  position: relative;
+  top:0.8rem;
+  overflow: hidden;
+  margin: 0;
+  font-size: 0.9rem;
+  height: 1rem;
+  background-color: var(--color-muted);
+  border: 1px solid #000;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  line-height: 1rem;
+  padding: 0.5rem;
+  color: #333;
 }
 
-/* ===== TEMA MODERNO (VERSIONE STAMPA ELEGANTE) ===== */
+/* 6) Temi */
 body.tema-moderno {
-  background: #ffffff;
-  color: #222;
+  background: var(--color-bg);
+  color: var(--text-color);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
-  font-family: "Open Sans", Arial, sans-serif;
+  font-family: var(--font-family-base);
 }
 
-body.tema-moderno #congregazione {
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-  color: #444;
-}
+body.tema-moderno #congregazione { font-size: 11px; letter-spacing: 0.5px; font-weight: 600; color: #444; }
+body.tema-moderno #intestazione { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: #222; margin-top: 2mm; }
+body.tema-moderno #mese-programma { font-size: 14px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 1px; }
 
-body.tema-moderno #intestazione {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #222;
-  margin-top: 2mm;
-}
+body.tema-moderno table { table-layout: fixed; font-size: 11.2px; line-height: 1.2; border: 1px solid #d0d0d0; }
+body.tema-moderno thead th { background: #ececec; color: #111; padding: 6px 4px; border: 1px solid #d0d0d0; }
+body.tema-moderno tbody td { padding: 5px 4px; border: 1px solid #e0e0e0; vertical-align: middle; }
+body.tema-moderno tbody tr:nth-child(odd) { background: #f9f9f9; }
+body.tema-moderno tbody tr:nth-child(even) { background: #ffffff; }
+body.tema-moderno .data { font-weight: 700; color: #000; letter-spacing: 0.5px; width: 28%; }
+body.tema-moderno td:nth-child(2), body.tema-moderno td:nth-child(3), body.tema-moderno td:nth-child(4) { width: 24%; }
+body.tema-moderno .addetto-microfonista { background: #f2f2f2; font-weight: 600; }
 
-body.tema-moderno #mese-programma {
-  font-size: 14px;
-  font-weight: 600;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-body.tema-moderno table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  font-size: 11.2px;
-  line-height: 1.2;
-  border: 1px solid #d0d0d0;
-}
-
-body.tema-moderno thead th {
-  background: #ececec;
-  color: #111;
-  font-weight: 700;
-  padding: 6px 4px;
-  border: 1px solid #d0d0d0;
-  letter-spacing: 0.5px;
-}
-
-body.tema-moderno tbody td {
-  padding: 5px 4px;
-  border: 1px solid #e0e0e0;
-  vertical-align: middle;
-}
-
-body.tema-moderno tbody tr:nth-child(odd) {
-  background: #f9f9f9;
-}
-body.tema-moderno tbody tr:nth-child(even) {
-  background: #ffffff;
-}
-
-body.tema-moderno .data {
-  font-weight: 700;
-  color: #000;
-  letter-spacing: 0.5px;
-  width: 28%;
-}
-body.tema-moderno td:nth-child(2) {
-  width: 24%;
-}
-body.tema-moderno td:nth-child(3) {
-  width: 24%;
-}
-body.tema-moderno td:nth-child(4) {
-  width: 24%;
-}
-
-body.tema-moderno .addetto-microfonista {
-  background: #f2f2f2;
-  font-weight: 600;
-}
-
-/* Rimozione di qualsiasi effetto dinamico */
-body.tema-moderno *,
-body.tema-moderno *:before,
-body.tema-moderno *:after {
-  transition: none !important;
-  animation: none !important;
-}
-
-/* Ottimizzazioni stampa */
-@page {
-  size: A4 portrait;
-  margin: 8mm;
-}
-@media print {
-  body.tema-moderno main {
-    box-shadow: none !important;
-    padding: 0;
-    width: 100%;
-    height: auto;
-  }
-  body.tema-moderno header {
-    border: 1px solid #bbb;
-    page-break-inside: avoid;
-  }
-  body.tema-moderno table {
-    font-size: 10.8px;
-  }
-  .no-print { display: none !important; }
-}
-
-/* ===== TEMA MATERIAL DESIGN ===== */
+/* Material theme */
 body.tema-material {
   background: #f5f5f5;
   color: #212121;
-  font-family: 'Roboto', "Open Sans", sans-serif;
+  font-family: 'Roboto', var(--font-family-base);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
 
-body.tema-material main {
-  width: 210mm;
-  height: 297mm;
-  margin: 1rem auto;
-  padding: 10mm;
-  box-sizing: border-box;
-  background: #ffffff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  border-radius: 4px;
-}
+body.tema-material main { width: var(--page-width); height: var(--page-height); margin: 1rem auto; padding: 10mm; box-sizing: border-box; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 4px; }
+body.tema-material #intestazione { font-size: 20px; font-weight: 700; }
+body.tema-material #mese-programma { font-size: 14px; font-weight: 500; text-transform: uppercase; }
+body.tema-material table { margin-top: 16px; font-size: 11px; }
+body.tema-material thead th { background: #f5f5f5; color: #616161; padding: 8px; text-align: left; border-bottom: 2px solid var(--color-accent); }
+body.tema-material tbody td { padding: 8px; border-bottom: 1px solid #e0e0e0; }
+body.tema-material tbody tr:last-child td { border-bottom: none; }
+body.tema-material .data { font-weight: 700; color: var(--color-accent); }
 
-body.tema-material #intestazione {
-  font-size: 20px;
-  font-weight: 700;
-}
+/* Ensure cells centered in both themes */
+body.tema-moderno th, body.tema-moderno td, body.tema-material th, body.tema-material td { text-align: center; }
 
-body.tema-material #mese-programma {
-  font-size: 14px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-body.tema-material table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 16px;
-  font-size: 11px;
-}
-
-body.tema-material thead th {
-  background: #f5f5f5;
-  color: #616161;
-  font-weight: 700;
-  padding: 8px;
-  text-align: left;
-  border-bottom: 2px solid #6200ee;
-}
-
-body.tema-material tbody td {
-  padding: 8px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-body.tema-material tbody tr:last-child td {
-  border-bottom: none;
-}
-
-body.tema-material .data {
-  font-weight: 700;
-  color: #6200ee;
-}
-
-body.tema-moderno th, body.tema-moderno td {
-  text-align: center;
-}
-
-body.tema-material th, body.tema-material td {
-  text-align: center;
-}
-
+/* 7) Print rules */
+@page { size: A4 portrait; margin: 8mm; }
 @media print {
-  body.tema-material {
-    background: #fff !important;
-  }
-  body.tema-material main {
-    box-shadow: none !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
-  }
-  body.tema-material header {
-    background: #6200ee !important;
-    color: white !important;
-    border-radius: 0 !important;
-  }
-  body.tema-material .data {
-    color: #6200ee !important;
-  }
-  body.tema-material thead th {
-    border-bottom: 2px solid #6200ee !important;
-  }
+  .no-print { display: none !important; }
+  body.tema-moderno main, body.tema-material main { box-shadow: none !important; padding: 0; width: 100%; height: auto; }
+  body.tema-moderno header, body.tema-material header { page-break-inside: avoid; }
+  body.tema-moderno table { font-size: 10.8px; }
+  body.tema-material { background: #fff !important; }
+  body.tema-material header { background: var(--color-accent) !important; color: white !important; }
+  body.tema-material thead th { border-bottom: 2px solid var(--color-accent) !important; }
 }
+
