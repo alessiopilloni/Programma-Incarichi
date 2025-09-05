@@ -12,83 +12,21 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/programma-incarichi.css" />
-  <link rel="stylesheet" href="css/controls.css" />
     <script src="js/programma-incarichi.js" defer></script>
   </head>
   <body>
     <div class="no-print controlli">
       <div>
-        <label for="file-csv" id="file-csv-label">Carica il file CSV: </label>
-        <input type="file" id="file-csv" accept=".csv" />
-        <button onclick="caricaFileCSV()">Carica</button>
-      </div>
-      <div>
-        <label for="select-mese">Seleziona il mese:</label>
-        <select id="select-mese">
-          <option value="0">Gennaio</option>
-          <option value="1">Febbraio</option>
-          <option value="2">Marzo</option>
-          <option value="3">Aprile</option>
-          <option value="4">Maggio</option>
-          <option value="5">Giugno</option>
-          <option value="6">Luglio</option>
-          <option value="7">Agosto</option>
-          <option value="8">Settembre</option>
-          <option value="9">Ottobre</option>
-          <option value="10">Novembre</option>
-          <option value="11">Dicembre</option>
+        <label for="file-pdf" id="file-pdf-label">Carica il file pdf: </label>
+        <input type="file" id="file-pdf" accept=".pdf" />
+        <button id="bottone-carica-pdf">Carica</button>
+        <select id="tema-selector">
+          <option value="classico">Tema Classico</option>
+          <option value="moderno">Tema Moderno</option>
+          <option value="material">Tema Material</option>
         </select>
-
-        <label for="anno">Seleziona l'anno:</label>
-        <input type="number" id="anno" min="2024" max="2100" value="2024" />
-
-        <button id="aggiorna-data">Aggiorna</button>
+  <button id="bottone-stampa">Stampa</button>
       </div>
-      <div>
-        <label for="select-data">Modifica una data:</label>
-        <!-- Crea dinamicamente le option in base alle date -->
-        <select id="select-data"></select>
-        <input
-          type="text"
-          id="cambiaData"
-          placeholder="Inserisci la nuova data"
-        />
-        <button onclick="cambiaData()">Modifica data cella</button>
-        <button onclick="ripristinaDataRiga()">Ripristina celle Data</button>
-      </div>
-      <div>
-        <label for="select-row">Cancella i valori della riga:</label>
-        <!-- Crea dinamicamente le option in base alle date -->
-        <select id="select-row"></select>
-        <input
-          type="text"
-          id="modifica-riga"
-          placeholder="Inserisci il testo"
-        />
-        <button onclick="modificaRiga()">Modifica riga</button>
-        <button onclick="ripristinaRiga()">Ripristina riga</button>
-      </div>
-      <div>
-        <label for="select-row-changing">Cambia incarichi riga:</label>
-        <select id="select-row-changing"></select>
-        <button onclick="aggiornaRiga()">Aggiorna</button>
-      </div>
-      <div>
-        <button
-          onclick="popolaIncarichi()"
-          id="change-table-arrangement-button"
-        >
-          Cambia combinazione incarichi
-        </button>
-        <button onclick="showOptions()" id="show-hide-last-row">
-          Mostra ultima riga nascosta
-        </button>
-        <button onclick="window.print()" id="print-button">
-          Stampa il programma
-        </button>
-      </div>
-      <div id="contatore-incarichi"></div>
-      <button onclick="contaElementi()">Ricalcola</button>
     </div>
     <main>
       <header>
@@ -99,120 +37,45 @@
             </div>
             <div class="bold" id="intestazione">Programmi incarichi</div>
           </div>
-          <div id="mese-programma"></div>
+          <div id="mese-programma"><!--Per esempio Marzo 2025--></div>
         </div>
       </header>
       <table id="myTable">
         <thead>
           <tr>
-            <th></th>
-            <th colspan="2">
-              <img src="img/audio-video.webp" alt="audio-video-icon" />
-              <div>AUDIO/VIDEO</div>
+            <th>
+              <div class="header-icon-placeholder"></div>
+              <br />
+              DATA
             </th>
             <th>
-              <img src="img/microfono.webp" alt="audio-video-icon" />
-              <div>MICROFONISTA</div>
+              <img src="img/audio-video.webp" alt="Audio Video" />
+              <br />
+              AUDIO / VIDEO
             </th>
-            <th colspan="2">
-              <img src="img/uscieri.webp" alt="audio-video-icon" />
-              <div>USCIERI</div>
-              <div>INGRESSO - AUDITORIUM</div>
+            <th>
+              <img src="img/microfono.webp" alt="Microfono" />
+              <br />
+              MICROFONISTA
+            </th>
+            <th>
+              <img src="img/uscieri.webp" alt="Uscieri" />
+              <br />
+              USCIERI
             </th>
           </tr>
         </thead>
         <tbody>
-          <!-- Corpo della tabella -->
+          <!-- Corpo della tabella dinamica (esempio riga)
           <tr>
             <td class="data">DATA</td>
             <td
               colspan="2"
               class="addetti-audio-video"
-              contenteditable="true"
             ></td>
-            <td class="addetto-microfonista" contenteditable="true"></td>
-            <td colspan="2" class="addetti-uscieri" contenteditable="true"></td>
-          </tr>
-          <tr>
-            <td class="data">DATA</td>
-            <td
-              colspan="2"
-              class="addetti-audio-video"
-              contenteditable="true"
-            ></td>
-            <td class="addetto-microfonista" contenteditable="true"></td>
-            <td colspan="2" class="addetti-uscieri" contenteditable="true"></td>
-          </tr>
-          <tr>
-            <td class="data">DATA</td>
-            <td
-              colspan="2"
-              class="addetti-audio-video"
-              contenteditable="true"
-            ></td>
-            <td class="addetto-microfonista" contenteditable="true"></td>
-            <td colspan="2" class="addetti-uscieri" contenteditable="true"></td>
-          </tr>
-          <tr>
-            <td class="data">DATA</td>
-            <td
-              colspan="2"
-              class="addetti-audio-video"
-              contenteditable="true"
-            ></td>
-            <td class="addetto-microfonista" contenteditable="true"></td>
-            <td colspan="2" class="addetti-uscieri" contenteditable="true"></td>
-          </tr>
-          <tr>
-            <td class="data">DATA</td>
-            <td
-              colspan="2"
-              class="addetti-audio-video"
-              contenteditable="true"
-            ></td>
-            <td class="addetto-microfonista" contenteditable="true"></td>
-            <td colspan="2" class="addetti-uscieri" contenteditable="true"></td>
-          </tr>
-          <tr>
-            <td class="data">DATA</td>
-            <td
-              colspan="2"
-              class="addetti-audio-video"
-              contenteditable="true"
-            ></td>
-            <td class="addetto-microfonista" contenteditable="true"></td>
-            <td colspan="2" class="addetti-uscieri" contenteditable="true"></td>
-          </tr>
-          <tr>
-            <td class="data">DATA</td>
-            <td
-              colspan="2"
-              class="addetti-audio-video"
-              contenteditable="true"
-            ></td>
-            <td class="addetto-microfonista" contenteditable="true"></td>
-            <td colspan="2" class="addetti-uscieri" contenteditable="true"></td>
-          </tr>
-          <tr>
-            <td class="data">DATA</td>
-            <td
-              colspan="2"
-              class="addetti-audio-video"
-              contenteditable="true"
-            ></td>
-            <td class="addetto-microfonista" contenteditable="true"></td>
-            <td colspan="2" class="addetti-uscieri" contenteditable="true"></td>
-          </tr>
-          <tr>
-            <td class="data">DATA</td>
-            <td
-              colspan="2"
-              class="addetti-audio-video"
-              contenteditable="true"
-            ></td>
-            <td class="addetto-microfonista" contenteditable="true"></td>
-            <td colspan="2" class="addetti-uscieri" contenteditable="true"></td>
-          </tr>
+            <td class="addetto-microfonista"></td>
+            <td colspan="2" class="addetti-uscieri"></td>
+          </tr>-->
         </tbody>
       </table>
     </main>

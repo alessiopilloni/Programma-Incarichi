@@ -38,13 +38,19 @@ table {
 th,
 td {
   padding: 1rem;
+  text-align: center;
 }
 tr {
   border-bottom: 0.5rem solid white;
 }
-table img {
+table img,
+.header-icon-placeholder {
   height: 40px;
   width: auto;
+  display: block;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0;
 }
 tbody tr:nth-child(even) {
   background-color: #eaf0f6;
@@ -84,7 +90,7 @@ input {
 
 }
 button:active {
-  scale: 0.95;
+  transform: scale(0.95);
   transition: all ease-in-out 0.01s;
 }
 #print-button {
@@ -109,7 +115,7 @@ button:active {
     display: none;
   }
 }
-.addetto-microfonista, center-text {
+.addetto-microfonista, .center-text {
   text-align: center;
 }
 
@@ -182,4 +188,209 @@ button:active {
 #contatore-incarichi {
   margin-top: 10px;
   font-weight: bold;
+}
+
+/* ===== TEMA MODERNO (VERSIONE STAMPA ELEGANTE) ===== */
+body.tema-moderno {
+  background: #ffffff;
+  color: #222;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-family: "Open Sans", Arial, sans-serif;
+}
+
+body.tema-moderno #congregazione {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: #444;
+}
+
+body.tema-moderno #intestazione {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #222;
+  margin-top: 2mm;
+}
+
+body.tema-moderno #mese-programma {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+body.tema-moderno table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 11.2px;
+  line-height: 1.2;
+  border: 1px solid #d0d0d0;
+}
+
+body.tema-moderno thead th {
+  background: #ececec;
+  color: #111;
+  font-weight: 700;
+  padding: 6px 4px;
+  border: 1px solid #d0d0d0;
+  letter-spacing: 0.5px;
+}
+
+body.tema-moderno tbody td {
+  padding: 5px 4px;
+  border: 1px solid #e0e0e0;
+  vertical-align: middle;
+}
+
+body.tema-moderno tbody tr:nth-child(odd) {
+  background: #f9f9f9;
+}
+body.tema-moderno tbody tr:nth-child(even) {
+  background: #ffffff;
+}
+
+body.tema-moderno .data {
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 0.5px;
+  width: 28%;
+}
+body.tema-moderno td:nth-child(2) {
+  width: 24%;
+}
+body.tema-moderno td:nth-child(3) {
+  width: 24%;
+}
+body.tema-moderno td:nth-child(4) {
+  width: 24%;
+}
+
+body.tema-moderno .addetto-microfonista {
+  background: #f2f2f2;
+  font-weight: 600;
+}
+
+/* Rimozione di qualsiasi effetto dinamico */
+body.tema-moderno *,
+body.tema-moderno *:before,
+body.tema-moderno *:after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Ottimizzazioni stampa */
+@page {
+  size: A4 portrait;
+  margin: 8mm;
+}
+@media print {
+  body.tema-moderno main {
+    box-shadow: none !important;
+    padding: 0;
+    width: 100%;
+    height: auto;
+  }
+  body.tema-moderno header {
+    border: 1px solid #bbb;
+    page-break-inside: avoid;
+  }
+  body.tema-moderno table {
+    font-size: 10.8px;
+  }
+  .no-print { display: none !important; }
+}
+
+/* ===== TEMA MATERIAL DESIGN ===== */
+body.tema-material {
+  background: #f5f5f5;
+  color: #212121;
+  font-family: 'Roboto', "Open Sans", sans-serif;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+body.tema-material main {
+  width: 210mm;
+  height: 297mm;
+  margin: 1rem auto;
+  padding: 10mm;
+  box-sizing: border-box;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 4px;
+}
+
+body.tema-material #intestazione {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+body.tema-material #mese-programma {
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+body.tema-material table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 11px;
+}
+
+body.tema-material thead th {
+  background: #f5f5f5;
+  color: #616161;
+  font-weight: 700;
+  padding: 8px;
+  text-align: left;
+  border-bottom: 2px solid #6200ee;
+}
+
+body.tema-material tbody td {
+  padding: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+body.tema-material tbody tr:last-child td {
+  border-bottom: none;
+}
+
+body.tema-material .data {
+  font-weight: 700;
+  color: #6200ee;
+}
+
+body.tema-moderno th, body.tema-moderno td {
+  text-align: center;
+}
+
+body.tema-material th, body.tema-material td {
+  text-align: center;
+}
+
+@media print {
+  body.tema-material {
+    background: #fff !important;
+  }
+  body.tema-material main {
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+  body.tema-material header {
+    background: #6200ee !important;
+    color: white !important;
+    border-radius: 0 !important;
+  }
+  body.tema-material .data {
+    color: #6200ee !important;
+  }
+  body.tema-material thead th {
+    border-bottom: 2px solid #6200ee !important;
+  }
 }
